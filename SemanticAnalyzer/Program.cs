@@ -1,10 +1,11 @@
 ﻿using Semantics;
 
-SemanticAnalyzer analyzer;
+Analyzer analyzer;
 
 try
 {
-    analyzer = new SemanticAnalyzer(args[0]);
+    analyzer = new Analyzer(args[0]);
+    analyzer.ReadTokenTable();
 }
 catch (FileNotFoundException e)
 {
@@ -12,4 +13,13 @@ catch (FileNotFoundException e)
     return;
 }
 
-analyzer.ReadTokenTable();
+analyzer.OnError += PrintError;
+Console.WriteLine(analyzer);
+analyzer.FullAnalysis();
+
+void PrintError(string message)
+{
+    Console.ForegroundColor = ConsoleColor.Red;
+    Console.WriteLine(message);
+    Console.ResetColor();
+}

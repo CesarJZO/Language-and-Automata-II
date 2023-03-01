@@ -13,6 +13,6 @@ public struct Token
 
     public override string ToString()
     {
-        return lexeme + " " + id + " " + tablePosition + " " + line;
+        return $"Lexeme: {lexeme}, Id: {id}, Table Position: {tablePosition}, Line: {line}";
     }
 }
