@@ -21,7 +21,10 @@ public class Analyzer
         Symbols = new List<Symbol>();
     }
 
-    public void FullAnalysis()
+    /// <summary>
+    /// Performs the full analysis of the token table and creates the symbol table
+    /// </summary>
+    public void PerformFullAnalysis()
     {
         ReadTokenTable();
         GetIdentifierTokens();
@@ -30,15 +33,15 @@ public class Analyzer
     }
 
     /// <summary>
-    /// Reads the token table from a csv file and stores it in a list
+    /// Reads the token table from the file and stores it in the Tokens list
     /// </summary>
     public void ReadTokenTable()
     {
-        string[] lines = File.ReadAllLines(_tokenTableFilePath);
+        var lines = File.ReadAllLines(_tokenTableFilePath);
 
         foreach (var t in lines)
         {
-            string[] columns = t.Split(",");
+            var columns = t.Split(",");
             var token = new Token
             {
                 lexeme = columns[0],
@@ -50,6 +53,9 @@ public class Analyzer
         }
     }
 
+    /// <summary>
+    /// Creates the symbol table from the identifiers in the token table. Should be called after CheckForRepeatedIdentifiers()
+    /// </summary>
     public void CreateSymbolTable()
     {
         foreach (var token in Identifiers)
@@ -58,13 +64,17 @@ public class Analyzer
             {
                 id = token.lexeme,
                 token = token.id,
-                valor = GetDefaultValueForToken(token)
+                value = GetDefaultValueForToken(token)
             };
             UpdateTokenInTable(token, Symbols.Count);
             Symbols.Add(symbol);
         }
     }
 
+    /// <summary>
+    /// Checks if there are repeated identifiers in the token table
+    /// </summary>
+    /// <returns>True if there are repeated identifiers, false otherwise</returns>
     public bool CheckForRepeatedIdentifiers()
     {
         // If there's a repeat, it's an error. Print the repeated identifier and the line it was found
@@ -81,22 +91,36 @@ public class Analyzer
         return true;
     }
 
+    /// <summary>
+    /// Gets the identifiers from the token table and stores them in the Identifiers list
+    /// </summary>
+    /// <returns></returns>
     public List<Token> GetIdentifierTokens()
     {
-        int varKeywordIndex = Tokens.FindIndex(token => token.id == -15);
-        int beginKeywordIndex = Tokens.FindIndex(token => token.id == -2);
+        var varKeywordIndex = Tokens.FindIndex(token => token.id == -15);
+        var beginKeywordIndex = Tokens.FindIndex(token => token.id == -2);
 
-        List<Token> definitionTokens = Tokens.GetRange(varKeywordIndex, beginKeywordIndex);
+        var definitionTokens = Tokens.GetRange(varKeywordIndex, beginKeywordIndex);
         Identifiers = definitionTokens.Where(token => token.tablePosition == -2).ToList();
         return Identifiers;
     }
 
+    /// <summary>
+    /// Updates the table position of a token in the token table
+    /// </summary>
+    /// <param name="token">The token to be updated</param>
+    /// <param name="tablePosition">The new position of the specified token</param>
     private void UpdateTokenInTable(Token token, int tablePosition)
     {
-        int index = Tokens.FindIndex(t => t.lexeme == token.lexeme);
+        var index = Tokens.FindIndex(t => t.lexeme == token.lexeme);
         Tokens[index].UpdateTablePosition(tablePosition);
     }
 
+    /// <summary>
+    /// Gets the default value for a token
+    /// </summary>
+    /// <param name="token">The identifier token</param>
+    /// <returns>Depending on the type of the token, returns a default value</returns>
     private string GetDefaultValueForToken(Token token)
     {
         switch (token.id)
@@ -114,11 +138,9 @@ public class Analyzer
     public string GetFormattedTokenTable()
     {
         var sb = new StringBuilder();
-        sb.AppendLine("Lexeme,Id,Table Position,Line");
+
         foreach (var token in Tokens)
-        {
             sb.AppendLine($"{token.lexeme},{token.id},{token.tablePosition},{token.line}");
-        }
         return sb.ToString();
     }
 
@@ -127,15 +149,13 @@ public class Analyzer
         var sb = new StringBuilder();
         sb.AppendLine("Id,Token,Valor");
         foreach (var symbol in Symbols)
-        {
-            sb.AppendLine($"{symbol.id},{symbol.token},{symbol.valor}");
-        }
+            sb.AppendLine($"{symbol.id},{symbol.token},{symbol.value}");
         return sb.ToString();
     }
 
     public override string ToString() => $@"Tokens
-{string.Join("\n", Tokens)}
+    {string.Join("\n", Tokens)}
 
 Symbols
-{string.Join("\n", Symbols.Count == 0 ? "No symbols" : Symbols)}";
+    {string.Join("\n", Symbols.Count == 0 ? "No symbols" : Symbols)}";
 }

@@ -14,12 +14,14 @@ catch (FileNotFoundException e)
 }
 
 analyzer.OnError += PrintError;
-Console.WriteLine(analyzer);
-analyzer.FullAnalysis();
+analyzer.ReadTokenTable();
+var identifiers = analyzer.GetIdentifierTokens();
+Console.WriteLine(string.Join(Environment.NewLine, identifiers));
 
 void PrintError(string message)
 {
     Console.ForegroundColor = ConsoleColor.Red;
     Console.WriteLine(message);
     Console.ResetColor();
+    Environment.Exit(1);
 }
