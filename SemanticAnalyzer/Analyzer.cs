@@ -43,13 +43,12 @@ public class Analyzer
         foreach (var t in lines)
         {
             var columns = t.Split(",");
-            var token = new Token
-            {
-                lexeme = columns[0],
-                id = int.Parse(columns[1]),
-                tablePosition = int.Parse(columns[2]),
-                line = int.Parse(columns[3])
-            };
+            var token = new Token(
+                lexeme: columns[0],
+                id: int.Parse(columns[1]),
+                tablePosition: int.Parse(columns[2]),
+                line: int.Parse(columns[3])
+            );
             Tokens.Add(token);
         }
     }
@@ -63,8 +62,8 @@ public class Analyzer
         {
             var symbol = new Symbol
             {
-                id = token.lexeme,
-                token = token.id,
+                id = token.Lexeme,
+                token = token.Id,
                 value = GetDefaultValueForToken(token)
             };
             UpdateTokenInTable(token, Symbols.Count);
@@ -79,14 +78,14 @@ public class Analyzer
     public bool CheckForRepeatedIdentifiers()
     {
         // If there's a repeat, it's an error. Print the repeated identifier and the line it was found
-        var hasRepeated = Identifiers.GroupBy(x => x.lexeme).Any(g => g.Count() > 1);
+        var hasRepeated = Identifiers.GroupBy(x => x.Lexeme).Any(g => g.Count() > 1);
 
         if (!hasRepeated) return false;
 
-        var repeated = Identifiers.GroupBy(x => x.lexeme).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
+        var repeated = Identifiers.GroupBy(x => x.Lexeme).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
         foreach (var identifier in repeated)
         {
-            var line = Identifiers.Find(token => token.lexeme == identifier).line;
+            var line = Identifiers.Find(token => token.Lexeme == identifier).Line;
             OnError?.Invoke($"Identifier {identifier} is already defined in line {line}");
         }
         return true;
@@ -98,11 +97,11 @@ public class Analyzer
     /// <returns></returns>
     public List<Token> GetIdentifierTokens()
     {
-        var varKeywordIndex = Tokens.FindIndex(token => token.id == -15);
-        var beginKeywordIndex = Tokens.FindIndex(token => token.id == -2);
+        var varKeywordIndex = Tokens.FindIndex(token => token.Id == -15);
+        var beginKeywordIndex = Tokens.FindIndex(token => token.Id == -2);
 
         var definitionTokens = Tokens.GetRange(varKeywordIndex, beginKeywordIndex);
-        Identifiers = definitionTokens.Where(token => token.tablePosition == -2).ToList();
+        Identifiers = definitionTokens.Where(token => token.TablePosition == -2).ToList();
         return Identifiers;
     }
 
@@ -113,8 +112,10 @@ public class Analyzer
     /// <param name="tablePosition">The new position of the specified token</param>
     private void UpdateTokenInTable(Token token, int tablePosition)
     {
-        var index = Tokens.FindIndex(t => t.lexeme == token.lexeme);
-        Tokens[index].UpdateTablePosition(tablePosition);
+        var index = Tokens.FindIndex(t => t.Lexeme == token.Lexeme);
+        var aux = Tokens[index];
+        aux.TablePosition = tablePosition;
+        Tokens[index] = aux;
     }
 
     /// <summary>
@@ -124,7 +125,7 @@ public class Analyzer
     /// <returns>Depending on the type of the token, returns a default value</returns>
     private string GetDefaultValueForToken(Token token)
     {
-        switch (token.id)
+        switch (token.Id)
         {
             case -51: return "0";
             case -52: return "0.0";
@@ -141,7 +142,7 @@ public class Analyzer
         var sb = new StringBuilder();
 
         foreach (var token in Tokens)
-            sb.AppendLine($"{token.lexeme},{token.id},{token.tablePosition},{token.line}");
+            sb.AppendLine($"{token.Lexeme},{token.Id},{token.TablePosition},{token.Line}");
         return sb.ToString();
     }
 
