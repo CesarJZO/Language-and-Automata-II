@@ -6,39 +6,35 @@ public class Analyzer
 {
     public event Action<string>? OnError;
 
-    private readonly string _tokenTableFilePath;
-
     public List<Token> Tokens { get; }
-
-    public List<Token> Identifiers { get; private set; }
 
     public List<Symbol> Symbols { get; }
 
-    public Analyzer(string tokenTableFilePath)
+    public Analyzer()
     {
-        _tokenTableFilePath = tokenTableFilePath;
         Tokens = new List<Token>();
-        Identifiers = new List<Token>();
         Symbols = new List<Symbol>();
     }
 
     /// <summary>
     /// Performs the full analysis of the token table and creates the symbol table
     /// </summary>
-    public void PerformFullAnalysis()
+    /// <param name="filePath">The path of the file containing the token table. It should be a csv file.</param>
+    public void PerformFullAnalysis(string filePath)
     {
-        ReadTokenTable();
-        GetIdentifierTokens();
-        if (CheckForRepeatedIdentifiers()) return;
-        CreateSymbolTable();
+        ReadTokenTable(filePath);
+        var identifierTokens = GetIdentifierTokens();
+        if (CheckForRepeatedIdentifiers(identifierTokens)) return;
+        CreateSymbolTable(identifierTokens);
     }
 
     /// <summary>
     /// Reads the token table from the file and stores it in the Tokens list
     /// </summary>
-    public void ReadTokenTable()
+    /// <param name="filePath">The path of the file containing the token table. It should be a csv file.</param>
+    public void ReadTokenTable(string filePath)
     {
-        var lines = File.ReadAllLines(_tokenTableFilePath);
+        var lines = File.ReadAllLines(filePath);
 
         foreach (var t in lines)
         {
@@ -56,16 +52,15 @@ public class Analyzer
     /// <summary>
     /// Creates the symbol table from the identifiers in the token table. Should be called after CheckForRepeatedIdentifiers()
     /// </summary>
-    public void CreateSymbolTable()
+    public void CreateSymbolTable(IEnumerable<Token> identifiers)
     {
-        foreach (var token in Identifiers)
+        foreach (var token in identifiers)
         {
-            var symbol = new Symbol
-            {
-                id = token.Lexeme,
-                token = token.Id,
-                value = GetDefaultValueForToken(token)
-            };
+            var symbol = new Symbol(
+                id: token.Lexeme,
+                token: token.Id,
+                value: GetDefaultValueForToken(token)
+            );
             UpdateTokenInTable(token, Symbols.Count);
             Symbols.Add(symbol);
         }
@@ -75,17 +70,17 @@ public class Analyzer
     /// Checks if there are repeated identifiers in the token table
     /// </summary>
     /// <returns>True if there are repeated identifiers, false otherwise</returns>
-    public bool CheckForRepeatedIdentifiers()
+    private bool CheckForRepeatedIdentifiers(List<Token> identifiers)
     {
         // If there's a repeat, it's an error. Print the repeated identifier and the line it was found
-        var hasRepeated = Identifiers.GroupBy(x => x.Lexeme).Any(g => g.Count() > 1);
+        var hasRepeated = identifiers.GroupBy(x => x.Lexeme).Any(g => g.Count() > 1);
 
         if (!hasRepeated) return false;
 
-        var repeated = Identifiers.GroupBy(x => x.Lexeme).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
+        var repeated = identifiers.GroupBy(x => x.Lexeme).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
         foreach (var identifier in repeated)
         {
-            var line = Identifiers.Find(token => token.Lexeme == identifier).Line;
+            var line = identifiers.Find(token => token.Lexeme == identifier).Line;
             OnError?.Invoke($"Identifier {identifier} is already defined in line {line}");
         }
         return true;
@@ -101,8 +96,7 @@ public class Analyzer
         var beginKeywordIndex = Tokens.FindIndex(token => token.Id == -2);
 
         var definitionTokens = Tokens.GetRange(varKeywordIndex, beginKeywordIndex);
-        Identifiers = definitionTokens.Where(token => token.TablePosition == -2).ToList();
-        return Identifiers;
+        return definitionTokens.Where(token => token.TablePosition == -2).ToList();
     }
 
     /// <summary>
@@ -151,7 +145,7 @@ public class Analyzer
         var sb = new StringBuilder();
         sb.AppendLine("Id,Token,Valor");
         foreach (var symbol in Symbols)
-            sb.AppendLine($"{symbol.id},{symbol.token},{symbol.value}");
+            sb.AppendLine($"{symbol.Id},{symbol.Token},{symbol.Value}");
         return sb.ToString();
     }
 

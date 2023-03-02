@@ -1,11 +1,10 @@
 ﻿using Semantics;
 
 Analyzer analyzer;
-
 try
 {
-    analyzer = new Analyzer(args[0]);
-    analyzer.ReadTokenTable();
+    analyzer = new Analyzer();
+    analyzer.ReadTokenTable(args[0]);
 }
 catch (FileNotFoundException e)
 {
@@ -14,12 +13,11 @@ catch (FileNotFoundException e)
 }
 
 analyzer.OnError += PrintError;
-analyzer.ReadTokenTable();
 
 var identifiers = analyzer.GetIdentifierTokens();
 Console.WriteLine($"Identifiers:\n{string.Join(Environment.NewLine, identifiers)}");
 
-analyzer.CreateSymbolTable();
+analyzer.CreateSymbolTable(identifiers);
 Console.WriteLine($"Symbol table:\n{string.Join(Environment.NewLine, analyzer.Symbols)}");
 Console.WriteLine($"Identifiers updated:\n{string.Join(Environment.NewLine, analyzer.Tokens)}");
 
