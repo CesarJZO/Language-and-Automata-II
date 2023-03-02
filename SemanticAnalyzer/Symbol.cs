@@ -6,5 +6,5 @@ public struct Symbol
     public int token;
     public string value;
 
-    public override string ToString() => $"Id: {id}, Token: {token}, Valor: {value}";
+    public override string ToString() => $"Id: {id}, Token: {token}, Value: {value}";
 }

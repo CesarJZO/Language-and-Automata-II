@@ -127,7 +127,7 @@ public class Analyzer
         {
             case -51: return "0";
             case -52: return "0.0";
-            case -53: return "\"\"";
+            case -53: return "null";
             case -54: return "false";
             default:
                 OnError?.Invoke($"Invalid token: [{token}]");

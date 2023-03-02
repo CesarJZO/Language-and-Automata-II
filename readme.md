@@ -7,5 +7,5 @@ This is a simple semantic analyzer, it takes a comma separated file (token table
 This project is written in **C#** and uses `.NET Core 6.0`.
 
 ```powershell
-dotnet run <input file> <output file>
+dotnet run <input file>
 ```

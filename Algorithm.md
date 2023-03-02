@@ -18,10 +18,10 @@
 
 [*] Verificar que no haya identificadores repetidos
 [*] Si hay identificadores repetidos, lanzar error
-[] Generar Tabla de símbolos y añadir valor default según el tipo a cada token
+[ ] Generar Tabla de símbolos y añadir valor default según el tipo a cada token
 
-[] Actualizar Tabla de tokens con posiciones en tabla de símbolos
-[] Si hay error, se muestra y termina el proceso
+[ ] Actualizar Tabla de tokens con posiciones en tabla de símbolos
+[ ] Si hay error, se muestra y termina el proceso
 
 
 1. Guardar todos los tokens en un Array.
