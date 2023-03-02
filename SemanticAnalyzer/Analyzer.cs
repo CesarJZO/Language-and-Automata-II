@@ -1,6 +1,7 @@
 ﻿using System.Text;
 
 namespace Semantics;
+
 public class Analyzer
 {
     public event Action<string>? OnError;
