@@ -113,6 +113,24 @@ public class Analyzer
     }
 
     /// <summary>
+    /// Once symbol list is created, checks Program body if usage of identifiers is correct by checking if they exist on symbol table.
+    /// Invokes OnError if a token has not a corresponding symbol.
+    /// </summary>
+    public void CheckSymbolUsage()
+    {
+        var beginIndex = Tokens.FindIndex(t => t.Id == -2);
+        var tokens = Tokens.GetRange(beginIndex, Tokens.Count - beginIndex);
+
+        var identifiers = tokens.Where(t => t.Id is <= -51 and >= -54);
+        foreach (var identifier in identifiers)
+        {
+            if (!IsSymbol(identifier))
+                OnError?.Invoke($"{identifier.Lexeme} is not defined.");
+        }
+        bool IsSymbol(Token token) => Symbols.Any(symbol => token.Lexeme == symbol.Id);
+    }
+
+    /// <summary>
     /// Gets the default value for a token
     /// </summary>
     /// <param name="token">The identifier token</param>

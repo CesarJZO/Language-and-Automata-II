@@ -20,6 +20,8 @@ Console.WriteLine($"Identifiers:\n{string.Join(Environment.NewLine, identifiers)
 analyzer.CreateSymbolTable(identifiers);
 Console.WriteLine($"Symbol table:\n{string.Join(Environment.NewLine, analyzer.Symbols)}");
 
+analyzer.CheckSymbolUsage();
+
 void PrintError(string message)
 {
     Console.ForegroundColor = ConsoleColor.Red;
