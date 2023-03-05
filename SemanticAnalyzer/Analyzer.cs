@@ -26,6 +26,8 @@ public class Analyzer
         var identifierTokens = GetIdentifierTokens();
         if (CheckForRepeatedIdentifiers(identifierTokens)) return;
         CreateSymbolTable(identifierTokens);
+        WriteFiles();
+        CheckSymbolUsage();
     }
 
     /// <summary>
@@ -89,6 +91,7 @@ public class Analyzer
     {
         foreach (var token in identifiers)
         {
+            if (!HasCorrectAssignment(token)) OnError?.Invoke($"[{token.Lexeme}] type mismatch.");
             var symbol = new Symbol(
                 id: token.Lexeme,
                 token: token.Id,
@@ -112,11 +115,20 @@ public class Analyzer
         Tokens[index] = aux;
     }
 
+    public void WriteFiles()
+    {
+        const string directory = "./output_files/";
+        if (!Directory.Exists(directory))
+            Directory.CreateDirectory(directory);
+        File.WriteAllText($"{directory}token_table.csv", GetFormattedTokenTable());
+        File.WriteAllText($"{directory}symbol_table.csv", GetFormattedSymbolTable());
+    }
+
     /// <summary>
     /// Once symbol list is created, checks Program body if usage of identifiers is correct by checking if they exist on symbol table.
     /// Invokes OnError if a token has not a corresponding symbol.
     /// </summary>
-    public void CheckSymbolUsage()
+    public void  CheckSymbolUsage()
     {
         var beginIndex = Tokens.FindIndex(t => t.Id == -2);
         var tokens = Tokens.GetRange(beginIndex, Tokens.Count - beginIndex);
@@ -125,9 +137,25 @@ public class Analyzer
         foreach (var identifier in identifiers)
         {
             if (!IsSymbol(identifier))
-                OnError?.Invoke($"{identifier.Lexeme} is not defined.");
+                OnError?.Invoke($"[{identifier.Lexeme}] is not defined.");
+            if (!HasCorrectAssignment(identifier))
+                OnError?.Invoke($"[{identifier.Lexeme}] type mismatch.");
+
         }
         bool IsSymbol(Token token) => Symbols.Any(symbol => token.Lexeme == symbol.Id);
+    }
+
+    private bool HasCorrectAssignment(Token token)
+    {
+        var lineTokens = Tokens.Where(t => t.Line == token.Line);
+        return !(token.Id switch
+        {
+            -51 => lineTokens.Any(tk => tk.Id is not -61),
+            -52 => lineTokens.Any(tk => tk.Id is not -62),
+            -53 => lineTokens.Any(tk => tk.Id is not -63),
+            -54 => lineTokens.Any(tk => tk.Id is not -64),
+            _ => throw new ArgumentOutOfRangeException()
+        });
     }
 
     /// <summary>
@@ -144,7 +172,7 @@ public class Analyzer
             case -53: return "null";
             case -54: return "false";
             default:
-                OnError?.Invoke($"Invalid token: [{token}]");
+                OnError?.Invoke($"[{token}] is not a valid type.");
                 return "";
         }
     }
@@ -152,7 +180,6 @@ public class Analyzer
     public string GetFormattedTokenTable()
     {
         var sb = new StringBuilder();
-
         foreach (var token in Tokens)
             sb.AppendLine($"{token.Lexeme},{token.Id},{token.TablePosition},{token.Line}");
         return sb.ToString();
@@ -161,7 +188,6 @@ public class Analyzer
     public string GetFormattedSymbolTable()
     {
         var sb = new StringBuilder();
-        sb.AppendLine("Id,Token,Valor");
         foreach (var symbol in Symbols)
             sb.AppendLine($"{symbol.Id},{symbol.Token},{symbol.Value}");
         return sb.ToString();
