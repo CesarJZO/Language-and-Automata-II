@@ -57,11 +57,11 @@ public class Analyzer
     /// <returns></returns>
     public List<Token> GetIdentifierTokens()
     {
-        var varKeywordIndex = Tokens.FindIndex(token => token.Id == -15);
-        var beginKeywordIndex = Tokens.FindIndex(token => token.Id == -2);
+        var varKeywordIndex = Tokens.FindIndex(token => token.Id == Lang.VarKeyword);
+        var beginKeywordIndex = Tokens.FindIndex(token => token.Id == Lang.BeginKeyword);
 
         var definitionTokens = Tokens.GetRange(varKeywordIndex, beginKeywordIndex);
-        return definitionTokens.Where(token => token.TablePosition == -2).ToList();
+        return definitionTokens.Where(token => token.TablePosition == Lang.DefaultTablePosition).ToList();
     }
 
     /// <summary>
@@ -130,10 +130,11 @@ public class Analyzer
     /// </summary>
     public void  CheckSymbolUsage()
     {
-        var beginIndex = Tokens.FindIndex(t => t.Id == -2);
+        var beginIndex = Tokens.FindIndex(t => t.Id == Lang.BeginKeyword);
         var tokens = Tokens.GetRange(beginIndex, Tokens.Count - beginIndex);
 
-        var identifiers = tokens.Where(t => t.Id is <= -51 and >= -54);
+        var identifiers = tokens.Where(t =>
+            t.Id is Lang.IntIdentifier or Lang.RealIdentifier or Lang.TextIdentifier or Lang.LogicIdentifier);
         foreach (var identifier in identifiers)
         {
             if (!IsSymbol(identifier))
@@ -150,10 +151,10 @@ public class Analyzer
         var lineTokens = Tokens.Where(t => t.Line == token.Line);
         return !(token.Id switch
         {
-            -51 => lineTokens.Any(tk => tk.Id is not -61),
-            -52 => lineTokens.Any(tk => tk.Id is not -62),
-            -53 => lineTokens.Any(tk => tk.Id is not -63),
-            -54 => lineTokens.Any(tk => tk.Id is not -64),
+            Lang.IntIdentifier => lineTokens.Any(t => t.Id is not Lang.Assignment or Lang.Semicolon or Lang.IntLiteral),
+            Lang.RealIdentifier => lineTokens.Any(t => t.Id is not Lang.Assignment or Lang.Semicolon or Lang.RealLiteral),
+            Lang.TextIdentifier => lineTokens.Any(t => t.Id is not Lang.Assignment or Lang.Semicolon or Lang.TextLiteral),
+            Lang.LogicIdentifier => lineTokens.Any(t => t.Id is not Lang.Assignment or Lang.Semicolon or Lang.TrueLiteral or Lang.FalseLiteral),
             _ => throw new ArgumentOutOfRangeException()
         });
     }
