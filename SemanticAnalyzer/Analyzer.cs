@@ -50,20 +50,16 @@ public class Analyzer
     }
 
     /// <summary>
-    /// Creates the symbol table from the identifiers in the token table. Should be called after CheckForRepeatedIdentifiers()
+    /// Gets the identifiers from the token table and stores them in the Identifiers list
     /// </summary>
-    public void CreateSymbolTable(IEnumerable<Token> identifiers)
+    /// <returns></returns>
+    public List<Token> GetIdentifierTokens()
     {
-        foreach (var token in identifiers)
-        {
-            var symbol = new Symbol(
-                id: token.Lexeme,
-                token: token.Id,
-                value: GetDefaultValueForToken(token)
-            );
-            UpdateTokenInTable(token, Symbols.Count);
-            Symbols.Add(symbol);
-        }
+        var varKeywordIndex = Tokens.FindIndex(token => token.Id == -15);
+        var beginKeywordIndex = Tokens.FindIndex(token => token.Id == -2);
+
+        var definitionTokens = Tokens.GetRange(varKeywordIndex, beginKeywordIndex);
+        return definitionTokens.Where(token => token.TablePosition == -2).ToList();
     }
 
     /// <summary>
@@ -87,16 +83,20 @@ public class Analyzer
     }
 
     /// <summary>
-    /// Gets the identifiers from the token table and stores them in the Identifiers list
+    /// Creates the symbol table from the identifiers in the token table. Should be called after CheckForRepeatedIdentifiers()
     /// </summary>
-    /// <returns></returns>
-    public List<Token> GetIdentifierTokens()
+    public void CreateSymbolTable(IEnumerable<Token> identifiers)
     {
-        var varKeywordIndex = Tokens.FindIndex(token => token.Id == -15);
-        var beginKeywordIndex = Tokens.FindIndex(token => token.Id == -2);
-
-        var definitionTokens = Tokens.GetRange(varKeywordIndex, beginKeywordIndex);
-        return definitionTokens.Where(token => token.TablePosition == -2).ToList();
+        foreach (var token in identifiers)
+        {
+            var symbol = new Symbol(
+                id: token.Lexeme,
+                token: token.Id,
+                value: GetDefaultValueForToken(token)
+            );
+            UpdateTokenInTable(token, Symbols.Count);
+            Symbols.Add(symbol);
+        }
     }
 
     /// <summary>

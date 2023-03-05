@@ -19,7 +19,6 @@ Console.WriteLine($"Identifiers:\n{string.Join(Environment.NewLine, identifiers)
 
 analyzer.CreateSymbolTable(identifiers);
 Console.WriteLine($"Symbol table:\n{string.Join(Environment.NewLine, analyzer.Symbols)}");
-Console.WriteLine($"Identifiers updated:\n{string.Join(Environment.NewLine, analyzer.Tokens)}");
 
 void PrintError(string message)
 {
