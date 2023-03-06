@@ -78,7 +78,7 @@ public class Analyzer
     /// Checks if there are repeated identifiers in the token table
     /// </summary>
     /// <returns>True if there are repeated identifiers, false otherwise</returns>
-    private bool CheckForRepeatedIdentifiers(List<Token> identifiers)
+    public bool CheckForRepeatedIdentifiers(List<Token> identifiers)
     {
         // If there's a repeat, it's an error. Print the repeated identifier and the line it was found
         var hasRepeated = identifiers.GroupBy(x => x.Lexeme).Any(g => g.Count() > 1);
