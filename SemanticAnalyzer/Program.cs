@@ -13,6 +13,11 @@ catch (FileNotFoundException e)
     Console.WriteLine($"File not found: {e.FileName}");
     Environment.Exit(1);
 }
+catch (IndexOutOfRangeException)
+{
+    Console.WriteLine("Provide the path of the file containing the token table.\n\tExample: SemanticAnalyzer.exe ./token_table.csv");
+    Environment.Exit(1);
+}
 
 Console.ForegroundColor = ConsoleColor.Green;
 Console.WriteLine("Semantic analysis successful.");
