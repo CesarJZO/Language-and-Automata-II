@@ -77,7 +77,7 @@ public class Analyzer
 
         var repeated = identifiers.GroupBy(x => x.Lexeme).Where(g => g.Count() > 1).Select(g => g.Last()).ToList();
         foreach (var identifier in repeated)
-            OnError?.Invoke($"Identifier [{identifier.Lexeme}] is already defined in line {identifier.Line}");
+            OnError?.Invoke($"Identifier [{identifier.Lexeme}] is already defined: line {identifier.Line}");
         return true;
     }
 
