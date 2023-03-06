@@ -10,9 +10,9 @@ public static class Lang
     public const int RealIdentifier = -52;
     public const int RealLiteral = -62;
 
-    public const int TextKeyword = -13;
-    public const int TextIdentifier = -53;
-    public const int TextLiteral = -63;
+    public const int StringKeyword = -13;
+    public const int StringIdentifier = -53;
+    public const int StringLiteral = -63;
 
     public const int LogicKeyword = -14;
     public const int LogicIdentifier = -54;
@@ -24,6 +24,7 @@ public static class Lang
 
     public const int Assignment = -26;
     public const int Semicolon = -75;
+    public const int Comma = -76;
 
     public const int DefaultTablePosition = -2;
 }

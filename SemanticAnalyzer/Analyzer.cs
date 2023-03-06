@@ -60,7 +60,7 @@ public class Analyzer
         var varKeywordIndex = Tokens.FindIndex(token => token.Id == Lang.VarKeyword);
         var beginKeywordIndex = Tokens.FindIndex(token => token.Id == Lang.BeginKeyword);
 
-        var definitionTokens = Tokens.GetRange(varKeywordIndex, beginKeywordIndex);
+        var definitionTokens = Tokens.GetRange(varKeywordIndex, beginKeywordIndex - varKeywordIndex);
         return definitionTokens.Where(token => token.TablePosition == Lang.DefaultTablePosition).ToList();
     }
 
@@ -153,7 +153,7 @@ public class Analyzer
         var tokens = Tokens.GetRange(beginIndex, Tokens.Count - beginIndex);
 
         var identifiers = tokens.Where(t =>
-            t.Id is Lang.IntIdentifier or Lang.RealIdentifier or Lang.TextIdentifier or Lang.LogicIdentifier);
+            t.Id is Lang.IntIdentifier or Lang.RealIdentifier or Lang.StringIdentifier or Lang.LogicIdentifier);
         foreach (var identifier in identifiers)
         {
             if (!IsSymbol(identifier))
@@ -167,12 +167,12 @@ public class Analyzer
 
     private bool HasCorrectAssignment(Token token)
     {
-        var tokens = Tokens.Where(t => t.Line == token.Line).Where(t => t.Id is not Lang.Assignment or Lang.Semicolon);
+        var tokens = Tokens.Where(t => t.Line == token.Line).Where(t => t.Id is not Lang.Assignment or Lang.Comma or Lang.Semicolon);
         return token.Id switch
         {
             Lang.IntIdentifier => tokens.All(t => t.Id is Lang.IntLiteral or Lang.IntIdentifier or Lang.IntKeyword),
             Lang.RealIdentifier => tokens.All(t => t.Id is Lang.RealLiteral or Lang.RealIdentifier or Lang.RealKeyword),
-            Lang.TextIdentifier => tokens.All(t => t.Id is Lang.TextLiteral or Lang.TextIdentifier or Lang.TextKeyword),
+            Lang.StringIdentifier => tokens.All(t => t.Id is Lang.StringLiteral or Lang.StringIdentifier or Lang.StringKeyword),
             Lang.LogicIdentifier => tokens.All(t => t.Id is Lang.TrueLiteral or Lang.FalseLiteral or Lang.LogicIdentifier or Lang.LogicKeyword),
             _ => false
         };
@@ -189,7 +189,7 @@ public class Analyzer
         {
             case Lang.IntIdentifier: return "0";
             case Lang.RealIdentifier: return "0.0";
-            case Lang.TextIdentifier: return "null";
+            case Lang.StringIdentifier: return "null";
             case Lang.LogicIdentifier: return "false";
             default:
                 OnError?.Invoke($"[{token.Lexeme}] is not a valid type: line {token.Line}.");
