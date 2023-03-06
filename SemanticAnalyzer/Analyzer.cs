@@ -116,6 +116,9 @@ public class Analyzer
         Tokens[index] = aux;
     }
 
+    /// <summary>
+    /// Writes the token table and symbol table to the output_files folder
+    /// </summary>
     public void WriteFiles()
     {
         const string directory = "./output_files/";
@@ -123,6 +126,21 @@ public class Analyzer
             Directory.CreateDirectory(directory);
         File.WriteAllText($"{directory}token_table.csv", GetFormattedTokenTable());
         File.WriteAllText($"{directory}symbol_table.csv", GetFormattedSymbolTable());
+        string GetFormattedTokenTable()
+        {
+            var sb = new StringBuilder();
+            foreach (var token in Tokens)
+                sb.AppendLine($"{token.Lexeme},{token.Id},{token.TablePosition},{token.Line}");
+            return sb.ToString();
+        }
+
+        string GetFormattedSymbolTable()
+        {
+            var sb = new StringBuilder();
+            foreach (var symbol in Symbols)
+                sb.AppendLine($"{symbol.Id},{symbol.Token},{symbol.Value}");
+            return sb.ToString();
+        }
     }
 
     /// <summary>
@@ -177,22 +195,6 @@ public class Analyzer
                 OnError?.Invoke($"[{token.Lexeme}] is not a valid type: line {token.Line}.");
                 return "";
         }
-    }
-
-    public string GetFormattedTokenTable()
-    {
-        var sb = new StringBuilder();
-        foreach (var token in Tokens)
-            sb.AppendLine($"{token.Lexeme},{token.Id},{token.TablePosition},{token.Line}");
-        return sb.ToString();
-    }
-
-    public string GetFormattedSymbolTable()
-    {
-        var sb = new StringBuilder();
-        foreach (var symbol in Symbols)
-            sb.AppendLine($"{symbol.Id},{symbol.Token},{symbol.Value}");
-        return sb.ToString();
     }
 
     public override string ToString() => $@"Tokens
