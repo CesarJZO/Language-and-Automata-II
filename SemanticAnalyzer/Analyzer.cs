@@ -105,10 +105,13 @@ public class Analyzer
     /// <param name="tablePosition">The new position of the specified token</param>
     private void UpdateTokenInTable(Token token, int tablePosition)
     {
-        var index = Tokens.FindIndex(t => t.Lexeme == token.Lexeme);
-        var aux = Tokens[index];
-        aux.TablePosition = tablePosition;
-        Tokens[index] = aux;
+        for (var i = 0; i < Tokens.Count; i++)
+        {
+            if (Tokens[i].Lexeme != token.Lexeme) continue;
+            var aux = Tokens[i];
+            aux.TablePosition = tablePosition;
+            Tokens[i] = aux;
+        }
     }
 
     /// <summary>
