@@ -15,7 +15,7 @@ catch (FileNotFoundException e)
 }
 catch (IndexOutOfRangeException)
 {
-    Console.WriteLine("Provide the path of the file containing the token table.\n\tExample: SemanticAnalyzer.exe ./token_table.csv");
+    Console.WriteLine("Provide the path of the file containing the token table.\nUsage: SemanticAnalyzer.exe <input_file.csv>");
     Environment.Exit(1);
 }
 

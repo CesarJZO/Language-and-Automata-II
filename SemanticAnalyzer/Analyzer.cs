@@ -41,13 +41,20 @@ public class Analyzer
         foreach (var t in lines)
         {
             var columns = t.Split(",");
-            var token = new Token(
-                lexeme: columns[0],
-                id: int.Parse(columns[1]),
-                tablePosition: int.Parse(columns[2]),
-                line: int.Parse(columns[3])
-            );
-            Tokens.Add(token);
+            try
+            {
+                var token = new Token(
+                    lexeme: columns[0],
+                    id: int.Parse(columns[1]),
+                    tablePosition: int.Parse(columns[2]),
+                    line: int.Parse(columns[3])
+                );
+                Tokens.Add(token);
+            }
+            catch (FormatException)
+            {
+                OnError?.Invoke($"Invalid token table format: {t}");
+            }
         }
     }
 
@@ -156,12 +163,20 @@ public class Analyzer
         {
             if (!IsSymbol(identifier))
                 OnError?.Invoke($"[{identifier.Lexeme}] is not defined: line {identifier.Line}.");
+            if (!HasCorrectType(identifier))
+                OnError?.Invoke($"[{identifier.Lexeme}] was defined with another type: line {identifier.Line}.");
             if (!HasCorrectAssignment(identifier))
                 OnError?.Invoke($"[{identifier.Lexeme}] type mismatch on line {identifier.Line}.");
         }
     }
 
     private bool IsSymbol(Token token) => Symbols.Any(symbol => token.Lexeme == symbol.Id);
+
+    private bool HasCorrectType(Token token)
+    {
+        var symbol = Symbols.First(s => s.Id == token.Lexeme);
+        return token.Id == symbol.Token;
+    }
 
     private bool HasCorrectAssignment(Token token)
     {
