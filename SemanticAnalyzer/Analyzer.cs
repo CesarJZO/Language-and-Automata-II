@@ -79,7 +79,7 @@ public class Analyzer
         foreach (var identifier in repeated)
         {
             var line = identifiers.Find(token => token.Lexeme == identifier).Line;
-            OnError?.Invoke($"Identifier {identifier} is already defined in line {line}");
+            OnError?.Invoke($"Identifier [{identifier}] is already defined in line {line}");
         }
         return true;
     }
@@ -91,7 +91,8 @@ public class Analyzer
     {
         foreach (var token in identifiers)
         {
-            if (!HasCorrectAssignment(token)) OnError?.Invoke($"[{token.Lexeme}] type mismatch.");
+            if (!HasCorrectAssignment(token))
+                OnError?.Invoke($"Identifier [{token.Lexeme}] has an incorrect assignment. Type mismatch at line {token.Line}");
             var symbol = new Symbol(
                 id: token.Lexeme,
                 token: token.Id,
@@ -128,7 +129,7 @@ public class Analyzer
     /// Once symbol list is created, checks Program body if usage of identifiers is correct by checking if they exist on symbol table.
     /// Invokes OnError if a token has not a corresponding symbol.
     /// </summary>
-    public void  CheckSymbolUsage()
+    public void CheckSymbolUsage()
     {
         var beginIndex = Tokens.FindIndex(t => t.Id == Lang.BeginKeyword);
         var tokens = Tokens.GetRange(beginIndex, Tokens.Count - beginIndex);
@@ -138,25 +139,25 @@ public class Analyzer
         foreach (var identifier in identifiers)
         {
             if (!IsSymbol(identifier))
-                OnError?.Invoke($"[{identifier.Lexeme}] is not defined.");
+                OnError?.Invoke($"[{identifier.Lexeme}] is not defined: line {identifier.Line}.");
             if (!HasCorrectAssignment(identifier))
-                OnError?.Invoke($"[{identifier.Lexeme}] type mismatch.");
-
+                OnError?.Invoke($"[{identifier.Lexeme}] type mismatch on line {identifier.Line}.");
         }
-        bool IsSymbol(Token token) => Symbols.Any(symbol => token.Lexeme == symbol.Id);
     }
+
+    private bool IsSymbol(Token token) => Symbols.Any(symbol => token.Lexeme == symbol.Id);
 
     private bool HasCorrectAssignment(Token token)
     {
-        var lineTokens = Tokens.Where(t => t.Line == token.Line);
-        return !(token.Id switch
+        var tokens = Tokens.Where(t => t.Line == token.Line).Where(t => t.Id is not Lang.Assignment or Lang.Semicolon);
+        return token.Id switch
         {
-            Lang.IntIdentifier => lineTokens.Any(t => t.Id is not Lang.Assignment or Lang.Semicolon or Lang.IntLiteral),
-            Lang.RealIdentifier => lineTokens.Any(t => t.Id is not Lang.Assignment or Lang.Semicolon or Lang.RealLiteral),
-            Lang.TextIdentifier => lineTokens.Any(t => t.Id is not Lang.Assignment or Lang.Semicolon or Lang.TextLiteral),
-            Lang.LogicIdentifier => lineTokens.Any(t => t.Id is not Lang.Assignment or Lang.Semicolon or Lang.TrueLiteral or Lang.FalseLiteral),
-            _ => throw new ArgumentOutOfRangeException()
-        });
+            Lang.IntIdentifier => tokens.All(t => t.Id is Lang.IntLiteral or Lang.IntIdentifier or Lang.IntKeyword),
+            Lang.RealIdentifier => tokens.All(t => t.Id is Lang.RealLiteral or Lang.RealIdentifier or Lang.RealKeyword),
+            Lang.TextIdentifier => tokens.All(t => t.Id is Lang.TextLiteral or Lang.TextIdentifier or Lang.TextKeyword),
+            Lang.LogicIdentifier => tokens.All(t => t.Id is Lang.TrueLiteral or Lang.FalseLiteral or Lang.LogicIdentifier or Lang.LogicKeyword),
+            _ => false
+        };
     }
 
     /// <summary>
@@ -168,12 +169,12 @@ public class Analyzer
     {
         switch (token.Id)
         {
-            case -51: return "0";
-            case -52: return "0.0";
-            case -53: return "null";
-            case -54: return "false";
+            case Lang.IntIdentifier: return "0";
+            case Lang.RealIdentifier: return "0.0";
+            case Lang.TextIdentifier: return "null";
+            case Lang.LogicIdentifier: return "false";
             default:
-                OnError?.Invoke($"[{token}] is not a valid type.");
+                OnError?.Invoke($"[{token.Lexeme}] is not a valid type: line {token.Line}.");
                 return "";
         }
     }

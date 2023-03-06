@@ -1,22 +1,22 @@
 ﻿using Semantics;
 
-Analyzer analyzer;
+var analyzer = new Analyzer();
+analyzer.OnError += PrintError;
+
 try
 {
-    analyzer = new Analyzer();
     // analyzer.ReadTokenTable(args[0]);
     analyzer.PerformFullAnalysis(args[0]);
 }
 catch (FileNotFoundException e)
 {
-    Console.WriteLine("File not found: " + e.FileName);
-    return;
+    Console.WriteLine($"File not found: {e.FileName}");
+    Environment.Exit(1);
 }
-
-analyzer.OnError += PrintError;
 
 Console.ForegroundColor = ConsoleColor.Green;
 Console.WriteLine("Semantic analysis successful.");
+Console.ResetColor();
 
 void PrintError(string message)
 {
