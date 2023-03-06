@@ -21,6 +21,7 @@ public static class Lang
 
     public const int BeginKeyword = -2;
     public const int VarKeyword = -15;
+    public const int GeneralIdentifier = -55;
 
     public const int Assignment = -26;
     public const int Semicolon = -75;

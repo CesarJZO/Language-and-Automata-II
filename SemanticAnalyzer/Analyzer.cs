@@ -67,8 +67,11 @@ public class Analyzer
         var varKeywordIndex = Tokens.FindIndex(token => token.Id == Lang.VarKeyword);
         var beginKeywordIndex = Tokens.FindIndex(token => token.Id == Lang.BeginKeyword);
 
+        var initialTokens = Tokens.GetRange(0, varKeywordIndex);
         var definitionTokens = Tokens.GetRange(varKeywordIndex, beginKeywordIndex - varKeywordIndex);
-        return definitionTokens.Where(token => token.TablePosition == Lang.DefaultTablePosition).ToList();
+
+        var tokens = initialTokens.Concat(definitionTokens);
+        return tokens.Where(token => token.TablePosition == Lang.DefaultTablePosition).ToList();
     }
 
     /// <summary>
@@ -204,6 +207,7 @@ public class Analyzer
             case Lang.RealIdentifier: return "0.0";
             case Lang.StringIdentifier: return "null";
             case Lang.LogicIdentifier: return "false";
+            case Lang.GeneralIdentifier: return "0";
             default:
                 OnError?.Invoke($"[{token.Lexeme}] is not a valid type: line {token.Line}.");
                 return "";
