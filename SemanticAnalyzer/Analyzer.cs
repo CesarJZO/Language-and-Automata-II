@@ -75,12 +75,9 @@ public class Analyzer
 
         if (!hasRepeated) return false;
 
-        var repeated = identifiers.GroupBy(x => x.Lexeme).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
+        var repeated = identifiers.GroupBy(x => x.Lexeme).Where(g => g.Count() > 1).Select(g => g.Last()).ToList();
         foreach (var identifier in repeated)
-        {
-            var line = identifiers.Find(token => token.Lexeme == identifier).Line;
-            OnError?.Invoke($"Identifier [{identifier}] is already defined in line {line}");
-        }
+            OnError?.Invoke($"Identifier [{identifier.Lexeme}] is already defined in line {identifier.Line}");
         return true;
     }
 
@@ -91,8 +88,6 @@ public class Analyzer
     {
         foreach (var token in identifiers)
         {
-            if (!HasCorrectAssignment(token))
-                OnError?.Invoke($"Identifier [{token.Lexeme}] has an incorrect assignment. Type mismatch at line {token.Line}");
             var symbol = new Symbol(
                 id: token.Lexeme,
                 token: token.Id,
@@ -167,7 +162,7 @@ public class Analyzer
 
     private bool HasCorrectAssignment(Token token)
     {
-        var tokens = Tokens.Where(t => t.Line == token.Line).Where(t => t.Id is not Lang.Assignment or Lang.Comma or Lang.Semicolon);
+        var tokens = Tokens.Where(t => t.Line == token.Line).Where(t => t.Id is not (Lang.Assignment or Lang.Comma or Lang.Semicolon));
         return token.Id switch
         {
             Lang.IntIdentifier => tokens.All(t => t.Id is Lang.IntLiteral or Lang.IntIdentifier or Lang.IntKeyword),
