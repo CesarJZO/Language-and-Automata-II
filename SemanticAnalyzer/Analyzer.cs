@@ -22,7 +22,7 @@ public class Analyzer
     {
         ReadTokenTable(filePath);
         var identifierTokens = GetIdentifierTokens();
-        if (CheckForRepeatedIdentifiers(identifierTokens)) return;
+        CheckForRepeatedIdentifiers(identifierTokens);
         CreateSymbolTable(identifierTokens);
         WriteFiles();
         CheckSymbolUsage();
