@@ -22,6 +22,3 @@
 - Si un identificador no está en la tabla de simbolos, lanzar un error
 - Si no se le asigna un valor del tipo correcto, lanzar un error
 - Checar que el identificador sea del mismo tipo que el que tiene asignado en la tabla de simbolos
-
-
-Añadir el identificador general a la tabla de simbolos

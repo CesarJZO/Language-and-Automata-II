@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace Semantics;
+﻿namespace Semantics;
 
 public class Analyzer
 {
@@ -53,7 +51,7 @@ public class Analyzer
             }
             catch (FormatException)
             {
-                OnError?.Invoke($"Invalid token table format: {t}");
+                OnError?.Invoke($"Invalid token table format: {t}.");
             }
         }
     }
@@ -87,23 +85,27 @@ public class Analyzer
 
         var repeated = identifiers.GroupBy(x => x.Lexeme).Where(g => g.Count() > 1).Select(g => g.Last()).ToList();
         foreach (var identifier in repeated)
-            OnError?.Invoke($"Identifier [{identifier.Lexeme}] is already defined: line {identifier.Line}");
+            OnError?.Invoke($"Identifier [{identifier.Lexeme}] is already defined: line {identifier.Line}.");
         return true;
     }
 
     /// <summary>
     /// Creates the symbol table from the identifiers in the token table. Should be called after CheckForRepeatedIdentifiers()
     /// </summary>
-    public void CreateSymbolTable(IEnumerable<Token> identifiers)
+    public void CreateSymbolTable(List<Token> identifiers)
     {
-        foreach (var token in identifiers)
+        for (var i = 0; i < identifiers.Count; i++)
         {
+            var token = identifiers[i];
             var symbol = new Symbol(
                 id: token.Lexeme,
                 token: token.Id,
                 value: GetDefaultValueForToken(token)
             );
             UpdateTokenInTable(token, Symbols.Count);
+            var aux = token;
+            aux.TablePosition = Symbols.Count;
+            identifiers[i] = aux;
             Symbols.Add(symbol);
         }
     }
@@ -132,23 +134,8 @@ public class Analyzer
         const string directory = "./output_files/";
         if (!Directory.Exists(directory))
             Directory.CreateDirectory(directory);
-        File.WriteAllText($"{directory}token_table.csv", GetFormattedTokenTable());
-        File.WriteAllText($"{directory}symbol_table.csv", GetFormattedSymbolTable());
-        string GetFormattedTokenTable()
-        {
-            var sb = new StringBuilder();
-            foreach (var token in Tokens)
-                sb.AppendLine($"{token.Lexeme},{token.Id},{token.TablePosition},{token.Line}");
-            return sb.ToString();
-        }
-
-        string GetFormattedSymbolTable()
-        {
-            var sb = new StringBuilder();
-            foreach (var symbol in Symbols)
-                sb.AppendLine($"{symbol.Id},{symbol.Token},{symbol.Value}");
-            return sb.ToString();
-        }
+        File.WriteAllLines($"{directory}token_table.csv", Tokens.Select(t => $"{t.Lexeme},{t.Id},{t.TablePosition},{t.Line}"));
+        File.WriteAllLines($"{directory}symbol_table.csv", Symbols.Select(s => $"{s.Id},{s.Token},{s.Value}"));
     }
 
     /// <summary>

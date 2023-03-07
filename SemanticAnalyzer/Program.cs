@@ -17,12 +17,12 @@ catch (IndexOutOfRangeException)
 }
 
 var identifierTokens = analyzer.GetIdentifierTokens();
-Console.WriteLine($"Identifiers:\n{string.Join("\n", identifierTokens)}\n");
-if (analyzer.CheckForRepeatedIdentifiers(identifierTokens)) return;
+analyzer.CheckForRepeatedIdentifiers(identifierTokens);
 analyzer.CreateSymbolTable(identifierTokens);
 analyzer.WriteFiles();
 analyzer.CheckSymbolUsage();
 
+Console.WriteLine($"Identifiers:\n{string.Join("\n", identifierTokens)}\n");
 Console.WriteLine($"Symbols:\n{string.Join("\n", analyzer.Symbols)}");
 
 Console.ForegroundColor = ConsoleColor.Green;

@@ -15,5 +15,5 @@ public struct Token
         Line = line;
     }
 
-    public override string ToString() => $"Lexeme: {Lexeme}, Id: {Id}, Table Position: {TablePosition}, Line: {Line}";
+    public override string ToString() => $"Lexeme: {Lexeme,6}, Id: {Id,3}, Table Position: {TablePosition,2}, Line: {Line,2}";
 }

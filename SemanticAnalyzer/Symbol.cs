@@ -1,6 +1,6 @@
 ﻿namespace Semantics;
 
-public struct Symbol
+public readonly struct Symbol
 {
     public string Id { get; }
     public int Token { get; }
@@ -13,5 +13,5 @@ public struct Symbol
         Value = value;
     }
 
-    public override string ToString() => $"Id: {Id}, Token: {Token}, Value: {Value}";
+    public override string ToString() => $"Id: {Id,6}, Token: {Token,3}, Value: {Value,5}";
 }
