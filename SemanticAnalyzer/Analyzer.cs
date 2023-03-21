@@ -170,13 +170,14 @@ public class Analyzer
 
     private bool HasCorrectAssignment(Token token)
     {
-        var tokens = Tokens.Where(t => t.Line == token.Line).Where(t => t.Id is not (Lang.Assignment or Lang.Comma or Lang.Semicolon));
+        var tokens = Tokens.Where(t => t.Line == token.Line)
+            .Where(t => t.Id is not (Lang.Assignment or Lang.Comma or Lang.Semicolon or <= -21 and >= -43 or <= -73 and >= -76));
         return token.Id switch
         {
-            Lang.IntIdentifier => tokens.All(t => t.Id is Lang.IntLiteral or Lang.IntIdentifier or Lang.IntKeyword),
-            Lang.RealIdentifier => tokens.All(t => t.Id is Lang.RealLiteral or Lang.RealIdentifier or Lang.RealKeyword),
-            Lang.StringIdentifier => tokens.All(t => t.Id is Lang.StringLiteral or Lang.StringIdentifier or Lang.StringKeyword),
-            Lang.LogicIdentifier => tokens.All(t => t.Id is Lang.TrueLiteral or Lang.FalseLiteral or Lang.LogicIdentifier or Lang.LogicKeyword),
+            Lang.IntIdentifier => tokens.All(t => t.Id is Lang.IntLiteral or Lang.IntIdentifier or Lang.LogicIdentifier),
+            Lang.RealIdentifier => tokens.All(t => t.Id is Lang.RealLiteral or Lang.RealIdentifier),
+            Lang.StringIdentifier => tokens.All(t => t.Id is Lang.StringLiteral or Lang.StringIdentifier),
+            Lang.LogicIdentifier => tokens.All(t => t.Id is Lang.TrueLiteral or Lang.FalseLiteral or Lang.LogicIdentifier or Lang.LogicKeyword or Lang.IntLiteral or Lang.IntIdentifier),
             _ => false
         };
     }
