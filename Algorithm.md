@@ -22,3 +22,16 @@
 - Si un identificador no está en la tabla de simbolos, lanzar un error
 - Si no se le asigna un valor del tipo correcto, lanzar un error
 - Checar que el identificador sea del mismo tipo que el que tiene asignado en la tabla de simbolos
+
+
+# Vector de código intermedio
+
+- Leer tabla de tokens que contiene el código de todo un programa
+- Meter en VCI todas las expresiones desde `inicio` hasta `fin`
+- Salida: el contenido del VCI separado por comas
+
+# Algoritmo
+
+- Leer token
+  - Si es identificador, mandar directo a VCI
+  - Si es operador, entra en la pila de operadores con su prioridad correspondiente. Si la prioridad del operador es mayor a la cabeza entra, si es igual 
