@@ -20,6 +20,7 @@ public static class Lang
     public const int FalseLiteral = -65;
 
     public const int BeginKeyword = -2;
+    public const int EndKeyword = 50;
     public const int VarKeyword = -15;
     public const int GeneralIdentifier = -55;
 
@@ -28,4 +29,26 @@ public static class Lang
     public const int Comma = -76;
 
     public const int DefaultTablePosition = -2;
+
+    public const int RepeatKeyword = 30;
+    public const int UntilKeyword = 69;
+}
+
+public static class Priority
+{
+    public const int Mul = 60;
+    public const int Div = 60;
+
+    public const int Sum = 50;
+    public const int Sub = 50;
+
+    public const int LowerThan = 40;
+    public const int GreaterThan = 40;
+    public new const int Equals = 40;
+
+    public const int Not = 30;
+    public const int And = 20;
+    public const int Or = 10;
+
+    public const int Assignment = 0;
 }
