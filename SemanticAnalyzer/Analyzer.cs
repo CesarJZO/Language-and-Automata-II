@@ -57,10 +57,11 @@ public class Analyzer
     }
 
     /// <summary>
-    /// Gets the identifiers from the token table and stores them in the Identifiers list
+    /// Gets identifier tokens from Token list. If tokens have a table position of -2 and they are stored in
+    /// declaration and initialisation blocks, they are considered identifiers.
     /// </summary>
-    /// <returns></returns>
-    public List<Token> GetIdentifierTokens()
+    /// <returns>An enumerable containing only identifier tokens</returns>
+    public IEnumerable<Token> GetIdentifierTokens()
     {
         var varKeywordIndex = Tokens.FindIndex(token => token.Id == Lang.VarKeyword);
         var beginKeywordIndex = Tokens.FindIndex(token => token.Id == Lang.BeginKeyword);
@@ -69,21 +70,22 @@ public class Analyzer
         var definitionTokens = Tokens.GetRange(varKeywordIndex, beginKeywordIndex - varKeywordIndex);
 
         var tokens = initialTokens.Concat(definitionTokens);
-        return tokens.Where(token => token.TablePosition == Lang.DefaultTablePosition).ToList();
+        return tokens.Where(token => token.TablePosition == Lang.DefaultTablePosition);
     }
 
     /// <summary>
     /// Checks if there are repeated identifiers in the token table
     /// </summary>
     /// <returns>True if there are repeated identifiers, false otherwise</returns>
-    public bool CheckForRepeatedIdentifiers(List<Token> identifiers)
+    public bool CheckForRepeatedIdentifiers(IEnumerable<Token> identifiers)
     {
         // If there's a repeat, it's an error. Print the repeated identifier and the line it was found
-        var hasRepeated = identifiers.GroupBy(x => x.Lexeme).Any(g => g.Count() > 1);
+        IEnumerable<Token> tokens = identifiers as Token[] ?? identifiers.ToArray();
+        var hasRepeated = tokens.GroupBy(x => x.Lexeme).Any(g => g.Count() > 1);
 
         if (!hasRepeated) return false;
 
-        var repeated = identifiers.GroupBy(x => x.Lexeme).Where(g => g.Count() > 1).Select(g => g.Last()).ToList();
+        var repeated = tokens.GroupBy(x => x.Lexeme).Where(g => g.Count() > 1).Select(g => g.Last()).ToList();
         foreach (var identifier in repeated)
             OnError?.Invoke($"Identifier [{identifier.Lexeme}] is already defined: line {identifier.Line}.");
         return true;
@@ -92,11 +94,12 @@ public class Analyzer
     /// <summary>
     /// Creates the symbol table from the identifiers in the token table. Should be called after CheckForRepeatedIdentifiers()
     /// </summary>
-    public void CreateSymbolTable(List<Token> identifiers)
+    public void CreateSymbolTable(IEnumerable<Token> identifiers)
     {
-        for (var i = 0; i < identifiers.Count; i++)
+        var enumerable = identifiers as Token[] ?? identifiers.ToArray();
+        for (var i = 0; i < enumerable.Length; i++)
         {
-            var token = identifiers[i];
+            var token = enumerable.ElementAt(i);
             var symbol = new Symbol(
                 id: token.Lexeme,
                 token: token.Id,
@@ -105,7 +108,7 @@ public class Analyzer
             UpdateTokenInTable(token, Symbols.Count);
             var aux = token;
             aux.TablePosition = Symbols.Count;
-            identifiers[i] = aux;
+            enumerable[i] = aux;
             Symbols.Add(symbol);
         }
     }
