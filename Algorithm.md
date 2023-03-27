@@ -27,11 +27,19 @@
 # Vector de código intermedio
 
 - Leer tabla de tokens que contiene el código de todo un programa
-- Meter en VCI todas las expresiones desde `inicio` hasta `fin`
+- Meter en VCI todas las expresiones desde el primer `inicio` hasta el ultimo `fin`
 - Salida: el contenido del VCI separado por comas
 
 # Algoritmo
 
+- Inicio se ignora
+- Si el token es un `;`, `)`
 - Leer token
-  - Si es identificador, mandar directo a VCI
-  - Si es operador, entra en la pila de operadores con su prioridad correspondiente. Si la prioridad del operador es mayor a la cabeza entra, si es igual 
+  - Si es identificador, constante o funcion, mandar directo a VCI
+  - Si es operador, entra en la pila de operadores con su prioridad correspondiente.
+    - Si el operador es `(`, se mete directo a la pila
+    - Si la prioridad del operador en la pila es menor a la del operador actual, se mete directo a la pila
+    - Si la prioridad del operador en al pila es mayor o igual a la del operador actual, se saca el operador de la pila y se mete al VCI
+  - Si es estatuto, se guarda en pila de estatutos
+    - Si el estatuto es `repeat`: se almacena la direccion en la pila de direcciones
+    - Cuando llego a `end`, si el estatuto en la pila es `repeat`, verifico que lo siguiente sea un `unitl` lo guardo momentaneamente y escribo la condicion del hasta en VCI, o sea, hasta el `;`, llegando al `;` escribir la direccion de la pila de direcciones y el `until`.
