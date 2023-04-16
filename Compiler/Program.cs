@@ -1,4 +1,5 @@
-﻿using Semantics;
+﻿using Language;
+using Semantics;
 using IntermediateCode;
 
 var analyzer = new Analyzer();
@@ -6,9 +7,7 @@ analyzer.OnError += PrintError;
 
 try
 {
-    // analyzer.ReadTokenTable(args[0]);
-    analyzer.PerformFullAnalysis(args[0]);
-    return;
+    analyzer.ReadTokenTable(args[0]);
 }
 catch (FileNotFoundException e)
 {

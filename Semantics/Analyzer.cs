@@ -1,4 +1,6 @@
-﻿namespace Semantics;
+﻿using Language;
+
+namespace Semantics;
 
 public class Analyzer
 {

@@ -1,4 +1,4 @@
-﻿namespace Semantics;
+﻿namespace Language;
 
 public class Token
 {

@@ -1,4 +1,4 @@
-﻿namespace Semantics;
+﻿namespace Language;
 
 public static class Lang
 {
@@ -58,7 +58,7 @@ public static class Lang
 
     public static bool IsOperator(int id) => id is MulOperator or DivOperator or ModOperator or SumOperator
         or SubOperator or LowerThanOperator or LowerOrEqualOperator or GreaterThanOperator or GreaterOrEqualOperator
-        or EqualToOperator or NotEqualsOperator or AndOperator or OrOperator or NotOperator;
+        or EqualToOperator or NotEqualsOperator or AndOperator or OrOperator or NotOperator or AssignmentOperator;
 
     public static bool IsStatement(int id) => id is RepeatKeyword or UntilKeyword;
 
