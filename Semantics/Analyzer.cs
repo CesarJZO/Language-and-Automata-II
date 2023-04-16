@@ -21,7 +21,7 @@ public class Analyzer
     public void PerformFullAnalysis(string filePath)
     {
         ReadTokenTable(filePath);
-        var identifierTokens = GetIdentifierTokens();
+        Token[] identifierTokens = GetIdentifierTokens();
         CheckForRepeatedIdentifiers(identifierTokens);
         CreateSymbolTable(identifierTokens);
         WriteFiles();
@@ -34,11 +34,11 @@ public class Analyzer
     /// <param name="filePath">The path of the file containing the token table. It should be a csv file.</param>
     public void ReadTokenTable(string filePath)
     {
-        var lines = File.ReadAllLines(filePath);
+        string[] lines = File.ReadAllLines(filePath);
 
-        foreach (var t in lines)
+        foreach (string t in lines)
         {
-            var columns = t.Split(",");
+            string[] columns = t.Split(",");
             try
             {
                 var token = new Token(
@@ -61,32 +61,29 @@ public class Analyzer
     /// declaration and initialisation blocks, they are considered identifiers.
     /// </summary>
     /// <returns>An enumerable containing only identifier tokens</returns>
-    public IEnumerable<Token> GetIdentifierTokens()
+    public Token[] GetIdentifierTokens()
     {
-        var varKeywordIndex = Tokens.FindIndex(token => token.Id == Lang.VarKeyword);
-        var beginKeywordIndex = Tokens.FindIndex(token => token.Id == Lang.BeginKeyword);
+        int varKeywordIndex = Tokens.FindIndex(token => token.Id == Lang.VarKeyword);
+        int beginKeywordIndex = Tokens.FindIndex(token => token.Id == Lang.BeginKeyword);
 
-        var initialTokens = Tokens.GetRange(0, varKeywordIndex);
-        var definitionTokens = Tokens.GetRange(varKeywordIndex, beginKeywordIndex - varKeywordIndex);
+        List<Token> definitionTokens = Tokens.GetRange(varKeywordIndex, beginKeywordIndex - varKeywordIndex);
 
-        var tokens = initialTokens.Concat(definitionTokens);
-        return tokens.Where(token => token.TablePosition == Lang.DefaultTablePosition);
+        return definitionTokens.Where(token => token.TablePosition == Lang.DefaultTablePosition).ToArray();
     }
 
     /// <summary>
     /// Checks if there are repeated identifiers in the token table
     /// </summary>
     /// <returns>True if there are repeated identifiers, false otherwise</returns>
-    public bool CheckForRepeatedIdentifiers(IEnumerable<Token> identifiers)
+    public bool CheckForRepeatedIdentifiers(Token[] identifiers)
     {
         // If there's a repeat, it's an error. Print the repeated identifier and the line it was found
-        IEnumerable<Token> tokens = identifiers as Token[] ?? identifiers.ToArray();
-        var hasRepeated = tokens.GroupBy(x => x.Lexeme).Any(g => g.Count() > 1);
+        bool hasRepeated = identifiers.GroupBy(x => x.Lexeme).Any(g => g.Count() > 1);
 
         if (!hasRepeated) return false;
 
-        var repeated = tokens.GroupBy(x => x.Lexeme).Where(g => g.Count() > 1).Select(g => g.Last()).ToList();
-        foreach (var identifier in repeated)
+        IEnumerable<Token> repeated = identifiers.GroupBy(x => x.Lexeme).Where(g => g.Count() > 1).Select(g => g.Last());
+        foreach (Token identifier in repeated)
             OnError?.Invoke($"Identifier [{identifier.Lexeme}] is already defined: line {identifier.Line}.");
         return true;
     }
@@ -94,21 +91,18 @@ public class Analyzer
     /// <summary>
     /// Creates the symbol table from the identifiers in the token table. Should be called after CheckForRepeatedIdentifiers()
     /// </summary>
-    public void CreateSymbolTable(IEnumerable<Token> identifiers)
+    public void CreateSymbolTable(Token[] identifiers)
     {
-        var enumerable = identifiers as Token[] ?? identifiers.ToArray();
-        for (var i = 0; i < enumerable.Length; i++)
+        for (var i = 0; i < identifiers.Length; i++)
         {
-            var token = enumerable.ElementAt(i);
+            Token token = identifiers[i];
             var symbol = new Symbol(
                 id: token.Lexeme,
                 token: token.Id,
                 value: GetDefaultValueForToken(token)
             );
             UpdateTokenInTable(token, Symbols.Count);
-            var aux = token;
-            aux.TablePosition = Symbols.Count;
-            enumerable[i] = aux;
+            identifiers[i].TablePosition = Symbols.Count;
             Symbols.Add(symbol);
         }
     }
@@ -120,13 +114,8 @@ public class Analyzer
     /// <param name="tablePosition">The new position of the specified token</param>
     private void UpdateTokenInTable(Token token, int tablePosition)
     {
-        for (var i = 0; i < Tokens.Count; i++)
-        {
-            if (Tokens[i].Lexeme != token.Lexeme) continue;
-            var aux = Tokens[i];
-            aux.TablePosition = tablePosition;
-            Tokens[i] = aux;
-        }
+        foreach (Token t in Tokens.Where(t => t.Lexeme == token.Lexeme))
+            t.TablePosition = tablePosition;
     }
 
     /// <summary>
@@ -147,12 +136,12 @@ public class Analyzer
     /// </summary>
     public void CheckSymbolUsage()
     {
-        var beginIndex = Tokens.FindIndex(t => t.Id == Lang.BeginKeyword);
-        var tokens = Tokens.GetRange(beginIndex, Tokens.Count - beginIndex);
+        int beginIndex = Tokens.FindIndex(t => t.Id == Lang.BeginKeyword);
+        List<Token> tokens = Tokens.GetRange(beginIndex, Tokens.Count - beginIndex);
 
-        var identifiers = tokens.Where(t =>
+        IEnumerable<Token> identifiers = tokens.Where(t =>
             t.Id is Lang.IntIdentifier or Lang.RealIdentifier or Lang.StringIdentifier or Lang.LogicIdentifier);
-        foreach (var identifier in identifiers)
+        foreach (Token identifier in identifiers)
         {
             if (!IsSymbol(identifier))
                 OnError?.Invoke($"[{identifier.Lexeme}] is not defined: line {identifier.Line}.");
@@ -167,14 +156,15 @@ public class Analyzer
 
     private bool HasCorrectType(Token token)
     {
-        var symbol = Symbols.First(s => s.Id == token.Lexeme);
+        Symbol symbol = Symbols.First(s => s.Id == token.Lexeme);
         return token.Id == symbol.Token;
     }
 
     private bool HasCorrectAssignment(Token token)
     {
-        var tokens = Tokens.Where(t => t.Line == token.Line)
-            .Where(t => t.Id is not (Lang.Assignment or Lang.Comma or Lang.Semicolon or <= -21 and >= -43 or <= -73 and >= -76));
+        IEnumerable<Token> tokens = Tokens.Where(t => t.Line == token.Line)
+            .Where(t => t.Id is not (Lang.AssignmentOperator or Lang.Comma or Lang.Semicolon
+                or <= -21 and >= -43 or <= -73 and >= -76));
         return token.Id switch
         {
             Lang.IntIdentifier => tokens.All(t => t.Id is Lang.IntLiteral or Lang.IntIdentifier or Lang.LogicIdentifier),
@@ -198,16 +188,17 @@ public class Analyzer
             case Lang.RealIdentifier: return "0.0";
             case Lang.StringIdentifier: return "null";
             case Lang.LogicIdentifier: return "false";
-            case Lang.GeneralIdentifier: return "0";
             default:
                 OnError?.Invoke($"[{token.Lexeme}] is not a valid type: line {token.Line}.");
                 return "";
         }
     }
 
-    public override string ToString() => $@"Tokens
-    {string.Join("\n", Tokens)}
+    public override string ToString() => $"""
+        Tokens
+            {string.Join("\n", Tokens)}
 
-Symbols
-    {string.Join("\n", Symbols.Count == 0 ? "No symbols" : Symbols)}";
+        Symbols
+            {string.Join("\n", Symbols.Count == 0 ? "No symbols" : Symbols)}
+        """;
 }

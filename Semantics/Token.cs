@@ -1,6 +1,6 @@
 ﻿namespace Semantics;
 
-public struct Token
+public class Token
 {
     public string Lexeme { get; }
     public int Id { get; }

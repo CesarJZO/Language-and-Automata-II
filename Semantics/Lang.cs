@@ -20,7 +20,7 @@ public static class Lang
     public const int FalseLiteral = -65;
 
     public const int BeginKeyword = -2;
-    public const int EndKeyword = 50;
+    public const int EndKeyword = -3;
     public const int VarKeyword = -15;
     public const int GeneralIdentifier = -55;
 
@@ -32,12 +32,12 @@ public static class Lang
     public const int ModOperator = -23;
     public const int SumOperator = -24;
     public const int SubOperator = -25;
-    public const int Assignment = -26;
+    public const int AssignmentOperator = -26;
     public const int LowerThanOperator = -31;
     public const int LowerOrEqualOperator = -32;
     public const int GreaterThanOperator = -33;
     public const int GreaterOrEqualOperator = -34;
-    public const int EqualsOperator = -35;
+    public const int EqualToOperator = -35;
     public const int NotEqualsOperator = -36;
     public const int AndOperator = -41;
     public const int OrOperator = -42;
@@ -56,7 +56,9 @@ public static class Lang
 
     public static bool IsIdentifier(int id) => id is IntIdentifier or RealIdentifier or StringIdentifier or LogicIdentifier or GeneralIdentifier;
 
-    public static bool IsOperator(int id) => id is MulOperator or DivOperator or ModOperator or SumOperator or SubOperator or LowerThanOperator or LowerOrEqualOperator or GreaterThanOperator or GreaterOrEqualOperator or EqualsOperator or NotEqualsOperator or AndOperator or OrOperator or NotOperator;
+    public static bool IsOperator(int id) => id is MulOperator or DivOperator or ModOperator or SumOperator
+        or SubOperator or LowerThanOperator or LowerOrEqualOperator or GreaterThanOperator or GreaterOrEqualOperator
+        or EqualToOperator or NotEqualsOperator or AndOperator or OrOperator or NotOperator;
 
     public static bool IsStatement(int id) => id is RepeatKeyword or UntilKeyword;
 
@@ -70,11 +72,11 @@ public static class Lang
         SubOperator => Priority.Sub,
         LowerThanOperator => Priority.LowerThan,
         GreaterThanOperator => Priority.GreaterThan,
-        EqualsOperator => Priority.Equals,
+        EqualToOperator => Priority.EqualTo,
         NotOperator => Priority.Not,
         AndOperator => Priority.And,
         OrOperator => Priority.Or,
-        Assignment => Priority.Assignment,
+        AssignmentOperator => Priority.Assign,
         _ => throw new Exception("Invalid operator")
     };
 
@@ -88,12 +90,12 @@ public static class Lang
 
         public const int LowerThan = 40;
         public const int GreaterThan = 40;
-        public new const int Equals = 40;
+        public const int EqualTo = 40;
 
         public const int Not = 30;
         public const int And = 20;
         public const int Or = 10;
 
-        public const int Assignment = 0;
+        public const int Assign = 0;
     }
 }
