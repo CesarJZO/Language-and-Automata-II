@@ -26,7 +26,7 @@ vector.GenerateIcv(bodyTokens);
 
 Console.WriteLine($"""
 VCI: {vector.Count()}
-[{string.Join(", ", vector.Select(t => t.Lexeme))}]
+{vector}
 """
 );
 

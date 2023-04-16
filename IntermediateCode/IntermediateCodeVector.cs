@@ -54,10 +54,10 @@ public class IntermediateCodeVector : IEnumerable<Token>
                 EmptyOperatorsStack();
 
                 if (temp == null) continue;
-                temp = null!;
                 var address = _addresses.Pop().ToString();
                 AddToIcv(new Token(address, 0, 0, 0));
                 AddToIcv(temp);
+                temp = null!;
             }
             else if (token.Id is Lang.RepeatKeyword)
             {
@@ -118,5 +118,25 @@ public class IntermediateCodeVector : IEnumerable<Token>
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
+    }
+
+    public override string ToString()
+    {
+        const string separator = ", ";
+        int digits = _intermediateCodeVector.Count.ToString().Length;
+        string icv = '[' + string.Join(separator,
+            _intermediateCodeVector.Select(t =>
+                string.Format($$"""{0,{{digits}}}""", t.Lexeme))) + ']';
+
+        var indexes = new string[_intermediateCodeVector.Count];
+
+        for (var i = 0; i < _intermediateCodeVector.Count; i++)
+        {
+            string lexeme = _intermediateCodeVector[i].Lexeme;
+            string formattedIndex = string.Format($$"""{0,{{lexeme.Length}}}""", i);
+            indexes[i] = string.Format($$"""{0,{{digits}}}""", formattedIndex);
+        }
+
+        return $"{icv}\n[{string.Join(separator, indexes)}]";
     }
 }
