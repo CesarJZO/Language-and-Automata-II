@@ -29,13 +29,14 @@ public class IntermediateCodeVector : IEnumerable<Token>
 
     public void GenerateIcv(Token[] tokens)
     {
+        Token temp = null!;
         for (var i = 0; i < tokens.Length; i++)
         {
             Token token = tokens[i];
             int id = token.Id;
             if (Lang.IsIdentifier(id) || Lang.IsLiteral(id))
             {
-                _intermediateCodeVector.Add(token);
+                AddToIcv(token);
             }
             else if (Lang.IsOperator(id))
             {
@@ -44,12 +45,32 @@ public class IntermediateCodeVector : IEnumerable<Token>
                     priority: Lang.GetPriority(token)
                 ));
             }
-            else if (Lang.IsStatement(id))
+            else if (token.Id is Lang.CloseParenthesis)
             {
+                while (_operators.Peek().Id != Lang.OpenParenthesis)
+                {
+                    AddToIcv(_operators.Pop());
+                }
+                _operators.Pop();
             }
-            else if (token.Id == Lang.Semicolon)
+            else if (token.Id is Lang.Semicolon)
             {
                 EmptyOperatorsStack();
+                if (temp != null)
+                {
+                    var address = _addresses.Pop().ToString();
+                    AddToIcv(new Token(address, 0, 0, 0));
+                    AddToIcv(temp);
+                }
+            }
+            else if (token.Id is Lang.RepeatKeyword)
+            {
+                _statements.Push(token);
+                _addresses.Push(_intermediateCodeVector.Count - 1);
+            }
+            else if (token.Id is Lang.UntilKeyword)
+            {
+                temp = token;
             }
         }
     }
@@ -58,45 +79,44 @@ public class IntermediateCodeVector : IEnumerable<Token>
     {
         while (_operators.Count > 0)
         {
-            _intermediateCodeVector.Add(_operators.Pop());
+            Operator op = _operators.Pop();
+            if (op.Id is Lang.OpenParenthesis or Lang.CloseParenthesis)
+                continue;
+            AddToIcv(op);
         }
     }
 
-    public void AddOperator(Operator op)
+    private void AddOperator(Operator op)
     {
         // Push to operators stack if it's empty
-        if (_operators.Count == 0)
+        if (_operators.Count == 0 || op.Id == Lang.OpenParenthesis)
         {
             _operators.Push(op);
         }
         else
         {
-            // If the operator has higher priority than the top of the stack, push it
-            Operator top = _operators.Peek();
-            if (op.Priority > top.Priority)
+            // If the operator has a higher priority than the top of the stack, push it
+            if (_operators.Peek().Priority < op.Priority)
             {
                 _operators.Push(op);
             }
             else
             {
-                // If the operator has lower or equal priority than the top of the stack, pop the stack until
-                // the operator has higher priority than the top of the stack
-                while (op.Priority <= top.Priority)
+                // Pop until the top of the stack has a lower priority than the operator
+                while (_operators.Count > 0 && _operators.Peek().Priority >= op.Priority)
                 {
-                    _intermediateCodeVector.Add(_operators.Pop());
-                    if (_operators.Count == 0)
-                    {
-                        break;
-                    }
-                    top = _operators.Peek();
+                    AddToIcv(_operators.Pop());
                 }
+                _operators.Push(op);
             }
         }
     }
 
-    public void AddStatement(Token statement)
+    public void AddToIcv(Token token)
     {
-
+        if (token.Id is Lang.OpenParenthesis or Lang.CloseParenthesis)
+            return;
+        _intermediateCodeVector.Add(token);
     }
 
     public IEnumerator<Token> GetEnumerator()

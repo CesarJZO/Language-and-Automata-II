@@ -25,7 +25,7 @@ Token[] bodyTokens = vector.GetBodyTokens(analyzer.Tokens);
 vector.GenerateIcv(bodyTokens);
 
 Console.WriteLine($"""
-VCI:
+VCI: {vector.Count()}
 [{string.Join(", ", vector.Select(t => t.Lexeme))}]
 """
 );
