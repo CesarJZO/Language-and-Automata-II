@@ -3,7 +3,6 @@ using Semantics;
 using IntermediateCode;
 
 var analyzer = new Analyzer();
-analyzer.OnError += PrintError;
 
 try
 {
@@ -19,9 +18,7 @@ catch (IndexOutOfRangeException)
 }
 
 var vector = new IntermediateCodeVector();
-
 Token[] bodyTokens = vector.GetBodyTokens(analyzer.Tokens);
-
 vector.GenerateIcv(bodyTokens);
 
 Console.WriteLine($"""

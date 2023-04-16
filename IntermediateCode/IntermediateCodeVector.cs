@@ -1,6 +1,6 @@
 ﻿using System.Collections;
-using System.Text;
 using Language;
+using static System.String;
 
 namespace IntermediateCode;
 
@@ -38,12 +38,6 @@ public class IntermediateCodeVector : IEnumerable<Token>
             {
                 AddToIcv(token);
             }
-            else if (token.Id is Lang.CloseParenthesis)
-            {
-                while (_operators.Peek().Id != Lang.OpenParenthesis)
-                    AddToIcv(_operators.Pop());
-                _operators.Pop();
-            }
             else if (Lang.IsOperator(token))
             {
                 AddOperator(new Operator(
@@ -51,11 +45,21 @@ public class IntermediateCodeVector : IEnumerable<Token>
                     priority: Lang.GetPriority(token)
                 ));
             }
+            else if (token.Id is Lang.OpenParenthesis)
+            {
+                _operators.Push(new Operator(token, Lang.GetPriority(token)));
+            }
+            else if (token.Id is Lang.CloseParenthesis)
+            {
+                RemovePairExpression();
+            }
             else if (token.Id is Lang.Semicolon)
             {
                 EmptyOperatorsStack();
 
-                if (temp == null) continue;
+                if (temp?.Id is not Lang.UntilKeyword) continue;
+                // Until condition evaluated
+
                 var address = _addresses.Pop().ToString();
                 AddToIcv(new Token(address, 0, 0, 0));
                 AddToIcv(temp);
@@ -78,6 +82,13 @@ public class IntermediateCodeVector : IEnumerable<Token>
         }
     }
 
+    private void RemovePairExpression()
+    {
+        while (_operators.Peek().Id != Lang.OpenParenthesis)
+            AddToIcv(_operators.Pop());
+        _operators.Pop();
+    }
+
     private void EmptyOperatorsStack()
     {
         while (_operators.Count > 0)
@@ -86,64 +97,41 @@ public class IntermediateCodeVector : IEnumerable<Token>
 
     private void AddOperator(Operator op)
     {
-        // Push to operators stack if it's empty
-        if (_operators.Count == 0 || op.Id == Lang.OpenParenthesis)
-        {
+        if (_operators.Count == 0)
             _operators.Push(op);
-        }
+        else if (_operators.Peek().Priority < op.Priority)
+            _operators.Push(op);
         else
         {
-            // If the operator has a higher priority than the top of the stack, push it
-            if (_operators.Peek().Priority < op.Priority)
-            {
-                _operators.Push(op);
-            }
-            else
-            {
-                // Pop until the top of the stack has a lower priority than the operator
-                while (_operators.Count > 0 && _operators.Peek().Priority >= op.Priority)
-                {
-                    AddToIcv(_operators.Pop());
-                }
-                _operators.Push(op);
-            }
+            while (_operators.Count > 0 && _operators.Peek().Priority >= op.Priority)
+                AddToIcv(_operators.Pop());
+            _operators.Push(op);
         }
     }
 
-    private void AddToIcv(Token token)
-    {
-        if (token.Id is Lang.OpenParenthesis or Lang.CloseParenthesis)
-            return;
-        _intermediateCodeVector.Add(token);
-    }
+    private void AddToIcv(Token token) => _intermediateCodeVector.Add(token);
 
-    public IEnumerator<Token> GetEnumerator()
-    {
-        return _intermediateCodeVector.GetEnumerator();
-    }
+    public IEnumerator<Token> GetEnumerator() => _intermediateCodeVector.GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public override string ToString()
     {
         const string separator = " | ";
         int digits = _intermediateCodeVector.Count.ToString().Length;
-        string icv = "[ " + string.Join(separator,
-            _intermediateCodeVector.Select(t =>
-                string.Format($$"""{0,{{digits}}}""", t.Lexeme))) + " ]";
+
+        string icv = "[ " + Join(separator,
+            _intermediateCodeVector.Select(t => Format($$"""{0,{{digits}}}""", t.Lexeme))) + " ]";
 
         var indexes = new string[_intermediateCodeVector.Count];
 
         for (var i = 0; i < _intermediateCodeVector.Count; i++)
         {
             string lexeme = _intermediateCodeVector[i].Lexeme;
-            string formattedIndex = string.Format($$"""{0,{{lexeme.Length}}}""", i);
-            indexes[i] = string.Format($$"""{0,{{digits}}}""", formattedIndex);
+            string formattedIndex = Format($$"""{0,{{lexeme.Length}}}""", i);
+            indexes[i] = Format($$"""{0,{{digits}}}""", formattedIndex);
         }
 
-        return $"{icv}\n[ {string.Join(separator, indexes)} ]";
+        return $"{icv}\n[ {Join(separator, indexes)} ]";
     }
 }
