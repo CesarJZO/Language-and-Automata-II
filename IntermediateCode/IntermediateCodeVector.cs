@@ -32,8 +32,7 @@ public class IntermediateCodeVector : IEnumerable<Token>
         Token temp = null!;
         foreach (Token token in tokens)
         {
-            int id = token.Id;
-            if (Lang.IsIdentifier(id) || Lang.IsLiteral(id))
+            if (Lang.IsIdentifier(token) || Lang.IsLiteral(token))
             {
                 AddToIcv(token);
             }
@@ -41,8 +40,9 @@ public class IntermediateCodeVector : IEnumerable<Token>
             {
                 while (_operators.Peek().Id != Lang.OpenParenthesis)
                     AddToIcv(_operators.Pop());
+                _operators.Pop();
             }
-            else if (Lang.IsOperator(id))
+            else if (Lang.IsOperator(token))
             {
                 AddOperator(new Operator(
                     token: token,
@@ -54,7 +54,7 @@ public class IntermediateCodeVector : IEnumerable<Token>
                 EmptyOperatorsStack();
 
                 if (temp == null) continue;
-
+                temp = null!;
                 var address = _addresses.Pop().ToString();
                 AddToIcv(new Token(address, 0, 0, 0));
                 AddToIcv(temp);
@@ -103,7 +103,7 @@ public class IntermediateCodeVector : IEnumerable<Token>
         }
     }
 
-    public void AddToIcv(Token token)
+    private void AddToIcv(Token token)
     {
         if (token.Id is Lang.OpenParenthesis or Lang.CloseParenthesis)
             return;

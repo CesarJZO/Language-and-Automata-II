@@ -16,4 +16,6 @@ public class Token
     }
 
     public override string ToString() => $"Lexeme: {Lexeme,6}, Id: {Id,3}, Table Position: {TablePosition,2}, Line: {Line,2}";
+
+    public static implicit operator int(Token token) => token.Id;
 }

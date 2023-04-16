@@ -60,7 +60,7 @@ public class Analyzer
 
     /// <summary>
     /// Gets identifier tokens from Token list. If tokens have a table position of -2 and they are stored in
-    /// declaration and initialisation blocks, they are considered identifiers.
+    /// declaration and initialization blocks, they are considered identifiers.
     /// </summary>
     /// <returns>An enumerable containing only identifier tokens</returns>
     public Token[] GetIdentifierTokens()
