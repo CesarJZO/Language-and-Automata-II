@@ -78,7 +78,7 @@ public static class Lang
         _ => throw new Exception("Invalid operator")
     };
 
-    public static class Priority
+    private static class Priority
     {
         public const int Mul = 60;
         public const int Div = 60;
@@ -96,5 +96,4 @@ public static class Lang
 
         public const int Assignment = 0;
     }
-
 }

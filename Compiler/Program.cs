@@ -1,4 +1,5 @@
 ﻿using Semantics;
+using IntermediateCode;
 
 var analyzer = new Analyzer();
 analyzer.OnError += PrintError;

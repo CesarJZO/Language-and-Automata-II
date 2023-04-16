@@ -1,6 +1,8 @@
-﻿namespace Semantics;
+﻿using Semantics;
 
-public class VCI
+namespace IntermediateCode;
+
+public class Vector
 {
     public List<string> IntermediateCodeVector { get; }
     public Stack<Operator> Operators { get; }
@@ -8,7 +10,7 @@ public class VCI
     public Stack<Statement> Statements { get; }
     public Stack<Token> Cloud { get; }
 
-    public VCI()
+    public Vector()
     {
         IntermediateCodeVector = new List<string>();
         Operators = new Stack<Operator>();
@@ -19,9 +21,9 @@ public class VCI
 
     public void ReadTokens(List<Token> tokens)
     {
-        foreach (var token in tokens)
+        foreach (Token token in tokens)
         {
-            var id = token.Id;
+            int id = token.Id;
             if (Lang.IsIdentifier(id) || Lang.IsLiteral(id))
             {
                 IntermediateCodeVector.Add(token.Lexeme);
@@ -73,7 +75,7 @@ public class VCI
     {
         if (statement is Statement.Repeat)
         {
-            
+
         }
     }
 }

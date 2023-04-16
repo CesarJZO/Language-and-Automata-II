@@ -1,6 +1,6 @@
 .idea/
 .vscode/
 .vs/
-SemanticAnalyzer/bin/
-SemanticAnalyzer/obj/
-SemanticAnalyzer/output_files/
+**/bin/
+**/obj/
+**/output_files/

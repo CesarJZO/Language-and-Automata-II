@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntermediateCode", "IntermediateCode\IntermediateCode.csproj", "{1721349F-1E89-468D-9D46-BD91F16E060C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Compiler", "Compiler\Compiler.csproj", "{17ACC8E2-ACA5-4369-8E1C-AF79FED55361}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Semantics", "Semantics\Semantics.csproj", "{85088353-0F84-4C6A-8BC3-A8C88EBC601D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1721349F-1E89-468D-9D46-BD91F16E060C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1721349F-1E89-468D-9D46-BD91F16E060C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1721349F-1E89-468D-9D46-BD91F16E060C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1721349F-1E89-468D-9D46-BD91F16E060C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17ACC8E2-ACA5-4369-8E1C-AF79FED55361}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17ACC8E2-ACA5-4369-8E1C-AF79FED55361}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17ACC8E2-ACA5-4369-8E1C-AF79FED55361}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17ACC8E2-ACA5-4369-8E1C-AF79FED55361}.Release|Any CPU.Build.0 = Release|Any CPU
+		{85088353-0F84-4C6A-8BC3-A8C88EBC601D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{85088353-0F84-4C6A-8BC3-A8C88EBC601D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{85088353-0F84-4C6A-8BC3-A8C88EBC601D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{85088353-0F84-4C6A-8BC3-A8C88EBC601D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
