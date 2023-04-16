@@ -80,12 +80,16 @@ public class IntermediateCodeVector : IEnumerable<Token>
             else
             {
                 // If the operator has lower or equal priority than the top of the stack, pop the stack until
-                while (_operators.Count > 0 && op.Priority <= top.Priority)
+                // the operator has higher priority than the top of the stack
+                while (op.Priority <= top.Priority)
                 {
-                    _intermediateCodeVector.Add(top);
-                    top = _operators.Pop();
+                    _intermediateCodeVector.Add(_operators.Pop());
+                    if (_operators.Count == 0)
+                    {
+                        break;
+                    }
+                    top = _operators.Peek();
                 }
-                _operators.Push(op);
             }
         }
     }

@@ -32,7 +32,9 @@ public static class Lang
     public const int ModOperator = -23;
     public const int SumOperator = -24;
     public const int SubOperator = -25;
+
     public const int AssignmentOperator = -26;
+
     public const int LowerThanOperator = -31;
     public const int LowerOrEqualOperator = -32;
     public const int GreaterThanOperator = -33;
@@ -42,8 +44,10 @@ public static class Lang
     public const int AndOperator = -41;
     public const int OrOperator = -42;
     public const int NotOperator = -43;
+
     public const int OpenParenthesis = -73;
     public const int CloseParenthesis = -74;
+
     public const int Semicolon = -75;
     public const int Comma = -76;
 
@@ -58,7 +62,8 @@ public static class Lang
 
     public static bool IsOperator(int id) => id is MulOperator or DivOperator or ModOperator or SumOperator
         or SubOperator or LowerThanOperator or LowerOrEqualOperator or GreaterThanOperator or GreaterOrEqualOperator
-        or EqualToOperator or NotEqualsOperator or AndOperator or OrOperator or NotOperator or AssignmentOperator;
+        or EqualToOperator or NotEqualsOperator or AndOperator or OrOperator or NotOperator or AssignmentOperator
+        or OpenParenthesis or CloseParenthesis;
 
     public static bool IsStatement(int id) => id is RepeatKeyword or UntilKeyword;
 
@@ -77,6 +82,8 @@ public static class Lang
         AndOperator => Priority.And,
         OrOperator => Priority.Or,
         AssignmentOperator => Priority.Assign,
+        OpenParenthesis => Priority.Assign,
+        CloseParenthesis => Priority.Assign,
         _ => throw new Exception("Invalid operator")
     };
 
