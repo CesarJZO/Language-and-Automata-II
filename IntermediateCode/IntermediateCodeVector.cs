@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Text;
 using Language;
 
 namespace IntermediateCode;
@@ -122,11 +123,11 @@ public class IntermediateCodeVector : IEnumerable<Token>
 
     public override string ToString()
     {
-        const string separator = ", ";
+        const string separator = " | ";
         int digits = _intermediateCodeVector.Count.ToString().Length;
-        string icv = '[' + string.Join(separator,
+        string icv = "[ " + string.Join(separator,
             _intermediateCodeVector.Select(t =>
-                string.Format($$"""{0,{{digits}}}""", t.Lexeme))) + ']';
+                string.Format($$"""{0,{{digits}}}""", t.Lexeme))) + " ]";
 
         var indexes = new string[_intermediateCodeVector.Count];
 
@@ -137,6 +138,6 @@ public class IntermediateCodeVector : IEnumerable<Token>
             indexes[i] = string.Format($$"""{0,{{digits}}}""", formattedIndex);
         }
 
-        return $"{icv}\n[{string.Join(separator, indexes)}]";
+        return $"{icv}\n[ {string.Join(separator, indexes)} ]";
     }
 }
