@@ -30,13 +30,17 @@ public class IntermediateCodeVector : IEnumerable<Token>
     public void GenerateIcv(Token[] tokens)
     {
         Token temp = null!;
-        for (var i = 0; i < tokens.Length; i++)
+        foreach (Token token in tokens)
         {
-            Token token = tokens[i];
             int id = token.Id;
             if (Lang.IsIdentifier(id) || Lang.IsLiteral(id))
             {
                 AddToIcv(token);
+            }
+            else if (token.Id is Lang.CloseParenthesis)
+            {
+                while (_operators.Peek().Id != Lang.OpenParenthesis)
+                    AddToIcv(_operators.Pop());
             }
             else if (Lang.IsOperator(id))
             {
@@ -45,23 +49,15 @@ public class IntermediateCodeVector : IEnumerable<Token>
                     priority: Lang.GetPriority(token)
                 ));
             }
-            else if (token.Id is Lang.CloseParenthesis)
-            {
-                while (_operators.Peek().Id != Lang.OpenParenthesis)
-                {
-                    AddToIcv(_operators.Pop());
-                }
-                _operators.Pop();
-            }
             else if (token.Id is Lang.Semicolon)
             {
                 EmptyOperatorsStack();
-                if (temp != null)
-                {
-                    var address = _addresses.Pop().ToString();
-                    AddToIcv(new Token(address, 0, 0, 0));
-                    AddToIcv(temp);
-                }
+
+                if (temp == null) continue;
+
+                var address = _addresses.Pop().ToString();
+                AddToIcv(new Token(address, 0, 0, 0));
+                AddToIcv(temp);
             }
             else if (token.Id is Lang.RepeatKeyword)
             {
@@ -75,15 +71,10 @@ public class IntermediateCodeVector : IEnumerable<Token>
         }
     }
 
-    public void EmptyOperatorsStack()
+    private void EmptyOperatorsStack()
     {
         while (_operators.Count > 0)
-        {
-            Operator op = _operators.Pop();
-            if (op.Id is Lang.OpenParenthesis or Lang.CloseParenthesis)
-                continue;
-            AddToIcv(op);
-        }
+            AddToIcv(_operators.Pop());
     }
 
     private void AddOperator(Operator op)
