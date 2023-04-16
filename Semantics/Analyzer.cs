@@ -95,16 +95,15 @@ public class Analyzer
     /// </summary>
     public void CreateSymbolTable(Token[] identifiers)
     {
-        for (var i = 0; i < identifiers.Length; i++)
+        foreach (Token token in identifiers)
         {
-            Token token = identifiers[i];
             var symbol = new Symbol(
                 id: token.Lexeme,
                 token: token.Id,
                 value: GetDefaultValueForToken(token)
             );
             UpdateTokenInTable(token, Symbols.Count);
-            identifiers[i].TablePosition = Symbols.Count;
+            token.TablePosition = Symbols.Count;
             Symbols.Add(symbol);
         }
     }
@@ -169,10 +168,13 @@ public class Analyzer
                 or <= -21 and >= -43 or <= -73 and >= -76));
         return token.Id switch
         {
-            Lang.IntIdentifier => tokens.All(t => t.Id is Lang.IntLiteral or Lang.IntIdentifier or Lang.LogicIdentifier),
+            Lang.IntIdentifier => tokens.All(t =>
+                t.Id is Lang.IntLiteral or Lang.IntIdentifier or Lang.LogicIdentifier),
             Lang.RealIdentifier => tokens.All(t => t.Id is Lang.RealLiteral or Lang.RealIdentifier),
             Lang.StringIdentifier => tokens.All(t => t.Id is Lang.StringLiteral or Lang.StringIdentifier),
-            Lang.LogicIdentifier => tokens.All(t => t.Id is Lang.TrueLiteral or Lang.FalseLiteral or Lang.LogicIdentifier or Lang.LogicKeyword or Lang.IntLiteral or Lang.IntIdentifier),
+            Lang.LogicIdentifier => tokens.All(t =>
+                t.Id is Lang.TrueLiteral or Lang.FalseLiteral or Lang.LogicIdentifier or Lang.LogicKeyword
+                    or Lang.IntLiteral or Lang.IntIdentifier),
             _ => false
         };
     }
