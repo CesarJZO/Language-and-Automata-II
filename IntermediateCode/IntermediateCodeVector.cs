@@ -1,21 +1,22 @@
 ﻿using System.Collections;
-using Semantics;
+using Language;
 
 namespace IntermediateCode;
 
 public class IntermediateCodeVector : IEnumerable<Token>
 {
     private readonly List<Token> _intermediateCodeVector;
-    public Stack<Operator> Operators { get; }
-    public Stack<int> Addresses { get; }
-    public Stack<Token> Statements { get; }
+
+    private readonly Stack<Operator> _operators;
+    private readonly Stack<int> _addresses;
+    private readonly Stack<Token> _statements;
 
     public IntermediateCodeVector()
     {
         _intermediateCodeVector = new List<Token>();
-        Operators = new Stack<Operator>();
-        Addresses = new Stack<int>();
-        Statements = new Stack<Token>();
+        _operators = new Stack<Operator>();
+        _addresses = new Stack<int>();
+        _statements = new Stack<Token>();
     }
 
     public Token[] GetBodyTokens(List<Token> tokens)
@@ -46,33 +47,45 @@ public class IntermediateCodeVector : IEnumerable<Token>
             else if (Lang.IsStatement(id))
             {
             }
+            else if (token.Id == Lang.Semicolon)
+            {
+                EmptyOperatorsStack();
+            }
+        }
+    }
+
+    public void EmptyOperatorsStack()
+    {
+        while (_operators.Count > 0)
+        {
+            _intermediateCodeVector.Add(_operators.Pop());
         }
     }
 
     public void AddOperator(Operator op)
     {
         // Push to operators stack if it's empty
-        if (Operators.Count == 0)
+        if (_operators.Count == 0)
         {
-            Operators.Push(op);
+            _operators.Push(op);
         }
         else
         {
             // If the operator has higher priority than the top of the stack, push it
-            Operator top = Operators.Peek();
+            Operator top = _operators.Peek();
             if (op.Priority > top.Priority)
             {
-                Operators.Push(op);
+                _operators.Push(op);
             }
             else
             {
                 // If the operator has lower or equal priority than the top of the stack, pop the stack until
-                while (Operators.Count > 0 && op.Priority <= top.Priority)
+                while (_operators.Count > 0 && op.Priority <= top.Priority)
                 {
                     _intermediateCodeVector.Add(top);
-                    top = Operators.Pop();
+                    top = _operators.Pop();
                 }
-                Operators.Push(op);
+                _operators.Push(op);
             }
         }
     }
@@ -90,15 +103,5 @@ public class IntermediateCodeVector : IEnumerable<Token>
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
-    }
-}
-
-public class Operator : Token
-{
-    public int Priority { get; }
-
-    public Operator(Token token, int priority) : base(token.Lexeme, token.Id, token.TablePosition, token.Line)
-    {
-        Priority = priority;
     }
 }

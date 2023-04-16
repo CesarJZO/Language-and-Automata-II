@@ -33,7 +33,8 @@
 # Algoritmo
 
 - Inicio se ignora
-- Si el token es un `;`, `)`
+- Si el token es un `;` vaciar pila de operadores.
+- Si es un `)` vaciar pila de operadores hasta encontrar un `(`.
 - Leer token
   - Si es identificador, constante o funcion, mandar directo a VCI
   - Si es operador, entra en la pila de operadores con su prioridad correspondiente.
