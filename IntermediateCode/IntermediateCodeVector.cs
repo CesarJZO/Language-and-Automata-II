@@ -31,9 +31,10 @@ public class IntermediateCodeVector : IEnumerable<Token>
     public void GenerateIcv(Token[] tokens)
     {
         Token temp = null!;
+        Token currentStatement = null!;
         foreach (Token token in tokens)
         {
-            if (Lang.IsIdentifier(token) || Lang.IsLiteral(token))
+            if (Lang.IsIdentifier(token) || Lang.IsLiteral(token) || Lang.IsFunction(token))
             {
                 AddToIcv(token);
             }
@@ -60,14 +61,19 @@ public class IntermediateCodeVector : IEnumerable<Token>
                 AddToIcv(temp);
                 temp = null!;
             }
+            else if (token.Id is Lang.EndKeyword)
+            {
+                currentStatement = _statements.Pop();
+            }
             else if (token.Id is Lang.RepeatKeyword)
             {
                 _statements.Push(token);
-                _addresses.Push(_intermediateCodeVector.Count - 1);
+                _addresses.Push(_intermediateCodeVector.Count);
             }
             else if (token.Id is Lang.UntilKeyword)
             {
-                temp = token;
+                if (currentStatement.Id is Lang.RepeatKeyword)
+                    temp = token;
             }
         }
     }
