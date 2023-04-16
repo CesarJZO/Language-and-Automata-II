@@ -1,43 +1,50 @@
-﻿using Semantics;
+﻿using System.Collections;
+using Semantics;
 
 namespace IntermediateCode;
 
-public class Vector
+public class IntermediateCodeVector : IEnumerable<Token>
 {
-    public List<string> IntermediateCodeVector { get; }
+    private readonly List<Token> _intermediateCodeVector;
     public Stack<Operator> Operators { get; }
     public Stack<int> Addresses { get; }
-    public Stack<Statement> Statements { get; }
-    public Stack<Token> Cloud { get; }
+    public Stack<Token> Statements { get; }
 
-    public Vector()
+    public IntermediateCodeVector()
     {
-        IntermediateCodeVector = new List<string>();
+        _intermediateCodeVector = new List<Token>();
         Operators = new Stack<Operator>();
         Addresses = new Stack<int>();
-        Statements = new Stack<Statement>();
-        Cloud = new Stack<Token>();
+        Statements = new Stack<Token>();
     }
 
-    public void ReadTokens(List<Token> tokens)
+    public Token[] GetBodyTokens(List<Token> tokens)
     {
-        foreach (Token token in tokens)
+        int firstBeginIndex = tokens.FindIndex(t => t.Id == Lang.BeginKeyword);
+        int lastEndIndex = tokens.FindLastIndex(t => t.Id == Lang.EndKeyword);
+
+        return tokens.GetRange(firstBeginIndex + 1, lastEndIndex - firstBeginIndex - 1).ToArray();
+    }
+
+    public void GenerateIcv(Token[] tokens)
+    {
+        for (var i = 0; i < tokens.Length; i++)
         {
+            Token token = tokens[i];
             int id = token.Id;
             if (Lang.IsIdentifier(id) || Lang.IsLiteral(id))
             {
-                IntermediateCodeVector.Add(token.Lexeme);
+                _intermediateCodeVector.Add(token);
             }
             else if (Lang.IsOperator(id))
             {
                 AddOperator(new Operator(
-                    name: token.Lexeme,
+                    token: token,
                     priority: Lang.GetPriority(token)
                 ));
             }
             else if (Lang.IsStatement(id))
             {
-
             }
         }
     }
@@ -52,7 +59,7 @@ public class Vector
         else
         {
             // If the operator has higher priority than the top of the stack, push it
-            var top = Operators.Peek();
+            Operator top = Operators.Peek();
             if (op.Priority > top.Priority)
             {
                 Operators.Push(op);
@@ -62,41 +69,36 @@ public class Vector
                 // If the operator has lower or equal priority than the top of the stack, pop the stack until
                 while (Operators.Count > 0 && op.Priority <= top.Priority)
                 {
-                    IntermediateCodeVector.Add(top.Name);
-                    Operators.Pop();
-                    top = Operators.Peek();
+                    _intermediateCodeVector.Add(top);
+                    top = Operators.Pop();
                 }
                 Operators.Push(op);
             }
         }
     }
 
-    public void AddStatement(Statement statement)
+    public void AddStatement(Token statement)
     {
-        if (statement is Statement.Repeat)
-        {
 
-        }
+    }
+
+    public IEnumerator<Token> GetEnumerator()
+    {
+        return _intermediateCodeVector.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
     }
 }
 
-public struct Operator
+public class Operator : Token
 {
-    public string Name { get; }
     public int Priority { get; }
 
-    public Operator(string name, int priority)
+    public Operator(Token token, int priority) : base(token.Lexeme, token.Id, token.TablePosition, token.Line)
     {
-        Name = name;
         Priority = priority;
     }
-}
-
-public enum Statement
-{
-    Repeat,
-    Until,
-    If,
-    Else,
-    While
 }

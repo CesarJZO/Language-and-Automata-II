@@ -6,7 +6,9 @@ analyzer.OnError += PrintError;
 
 try
 {
-    analyzer.ReadTokenTable(args[0]);
+    // analyzer.ReadTokenTable(args[0]);
+    analyzer.PerformFullAnalysis(args[0]);
+    return;
 }
 catch (FileNotFoundException e)
 {
@@ -17,18 +19,17 @@ catch (IndexOutOfRangeException)
     PrintError("Provide the path of the file containing the token table. \"SemanticAnalyzer.exe <input_file.csv>\"");
 }
 
-var identifierTokens = analyzer.GetIdentifierTokens();
-analyzer.CheckForRepeatedIdentifiers(identifierTokens);
-analyzer.CreateSymbolTable(identifierTokens);
-analyzer.WriteFiles();
-analyzer.CheckSymbolUsage();
+var vector = new IntermediateCodeVector();
 
-Console.WriteLine($"Identifiers:\n{string.Join("\n", identifierTokens)}\n");
-Console.WriteLine($"Symbols:\n{string.Join("\n", analyzer.Symbols)}");
+Token[] bodyTokens = vector.GetBodyTokens(analyzer.Tokens);
 
-Console.ForegroundColor = ConsoleColor.Green;
-Console.WriteLine("Semantic analysis successful.");
-Console.ResetColor();
+vector.GenerateIcv(bodyTokens);
+
+Console.WriteLine($"""
+VCI:
+[{string.Join(", ", vector.Select(t => t.Lexeme))}]
+"""
+);
 
 void PrintError(string message)
 {
