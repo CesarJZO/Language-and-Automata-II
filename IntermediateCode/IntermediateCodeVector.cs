@@ -20,15 +20,7 @@ public class IntermediateCodeVector : IEnumerable<Token>
         _statements = new Stack<Token>();
     }
 
-    public Token[] GetBodyTokens(List<Token> tokens)
-    {
-        int firstBeginIndex = tokens.FindIndex(t => t.Id == Lang.BeginKeyword);
-        int lastEndIndex = tokens.FindLastIndex(t => t.Id == Lang.EndKeyword);
-
-        return tokens.GetRange(firstBeginIndex + 1, lastEndIndex - firstBeginIndex - 1).ToArray();
-    }
-
-    public void GenerateIcv(Token[] tokens)
+    public void Generate(Token[] tokens)
     {
         Token temp = null!;
         Token currentStatement = null!;

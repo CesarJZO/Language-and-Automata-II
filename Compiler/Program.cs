@@ -1,31 +1,46 @@
 ﻿using Language;
-using Semantics;
 using IntermediateCode;
 
-var analyzer = new Analyzer();
-
+var filePath = string.Empty;
 try
 {
-    analyzer.ReadTokenTable(args[0]);
+    filePath = args[0];
+}
+catch (IndexOutOfRangeException)
+{
+    PrintError("No file provided.");
+}
+
+Token[] tokens = Array.Empty<Token>();
+try
+{
+    tokens = FileParser.GetTokensFromFile(filePath);
 }
 catch (FileNotFoundException e)
 {
     PrintError($"File not found: {e.FileName}");
 }
-catch (IndexOutOfRangeException)
+catch (Exception e)
 {
-    PrintError("Provide the path of the file containing the token table. \"SemanticAnalyzer.exe <input_file.csv>\"");
+    PrintError(e.Message);
 }
 
 var vector = new IntermediateCodeVector();
-Token[] bodyTokens = vector.GetBodyTokens(analyzer.Tokens);
-vector.GenerateIcv(bodyTokens);
+Token[] bodyTokens = Filter.GetBodyTokens(tokens);
+vector.Generate(bodyTokens);
 
 Console.WriteLine($"""
 VCI: {vector.Count()}
 {vector}
 """
 );
+
+const string outputDir = "output_files";
+
+if (!Directory.Exists(outputDir))
+    Directory.CreateDirectory(outputDir);
+
+FileParser.WriteTokensAsArray($"{outputDir}/vci.csv", vector.ToArray());
 
 void PrintError(string message)
 {
