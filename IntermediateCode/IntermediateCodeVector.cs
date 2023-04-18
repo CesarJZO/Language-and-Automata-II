@@ -74,6 +74,9 @@ public class IntermediateCodeVector : IEnumerable<Token>
         }
     }
 
+    /// <summary>
+    /// Removes all operators from the stack until the first open parenthesis is found.
+    /// </summary>
     private void RemovePairExpression()
     {
         while (_operators.Peek().Id != Lang.OpenParenthesis)
@@ -81,12 +84,21 @@ public class IntermediateCodeVector : IEnumerable<Token>
         _operators.Pop();
     }
 
+    /// <summary>
+    /// Removes all operators from the stack and adds them to the intermediate code vector.
+    /// </summary>
     private void EmptyOperatorsStack()
     {
         while (_operators.Count > 0)
             AddToIcv(_operators.Pop());
     }
 
+    /// <summary>
+    /// Adds an operator to the stack based on its priority. If the operator has a higher priority
+    /// than the top of the stack, it is added to the stack. Otherwise, all operators with a higher
+    /// or equal priority are removed from the stack and added to the intermediate code vector.
+    /// </summary>
+    /// <param name="op">Operator to add</param>
     private void AddOperator(Operator op)
     {
         if (_operators.Count == 0)
@@ -101,6 +113,10 @@ public class IntermediateCodeVector : IEnumerable<Token>
         }
     }
 
+    /// <summary>
+    /// Adds a token to the intermediate code vector.
+    /// </summary>
+    /// <param name="token">Token to add</param>
     private void AddToIcv(Token token) => _intermediateCodeVector.Add(token);
 
     public IEnumerator<Token> GetEnumerator() => _intermediateCodeVector.GetEnumerator();
