@@ -60,7 +60,8 @@ public static class Lang
 
     public static bool IsIdentifier(int id) => id is IntIdentifier or RealIdentifier or StringIdentifier or LogicIdentifier or GeneralIdentifier;
 
-    public static bool IsOperator(int id) => id is MulOperator or DivOperator or ModOperator or SumOperator
+    public static bool IsOperator(int id) => id is 
+        MulOperator or DivOperator or ModOperator or SumOperator
         or SubOperator or LowerThanOperator or LowerOrEqualOperator or GreaterThanOperator or GreaterOrEqualOperator
         or EqualToOperator or NotEqualsOperator or AndOperator or OrOperator or NotOperator or AssignmentOperator;
 
@@ -76,6 +77,8 @@ public static class Lang
         SubOperator => Priority.Sub,
         LowerThanOperator => Priority.LowerThan,
         GreaterThanOperator => Priority.GreaterThan,
+        GreaterOrEqualOperator => Priority.GreaterThan,
+        LowerOrEqualOperator => Priority.LowerThan,
         EqualToOperator => Priority.EqualTo,
         NotOperator => Priority.Not,
         AndOperator => Priority.And,
