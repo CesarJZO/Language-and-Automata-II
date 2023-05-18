@@ -1,6 +1,5 @@
 ﻿using System.Data;
 using Language;
-using Semantics;
 
 namespace IntermediateCode;
 
@@ -13,7 +12,7 @@ public class IcvExecutable
 
     private readonly Symbol[] _symbols;
 
-    private readonly Func<string> _readFunction;
+    private readonly Func<string?> _readFunction;
     private readonly Action<string> _writeFunction;
 
     /// <summary>
@@ -23,7 +22,7 @@ public class IcvExecutable
     /// <param name="symbols">Symbols table from semantic analysis.</param>
     /// <param name="readFunction">Predicate to be used as read function.</param>
     /// <param name="writeFunction">Action to be used as write function.</param>
-    public IcvExecutable(IntermediateCodeVector vector, Symbol[] symbols, Func<string> readFunction, Action<string> writeFunction)
+    public IcvExecutable(IntermediateCodeVector vector, Symbol[] symbols, Func<string?> readFunction, Action<string> writeFunction)
     {
         _vector = vector;
         _symbols = symbols;
@@ -81,7 +80,7 @@ public class IcvExecutable
         Token nextToken = _vector[index + 1];
 
         Symbol symbol = _symbols[nextToken.TablePosition];
-        symbol.Value = _readFunction();
+        symbol.Value = _readFunction() ?? string.Empty;
     }
 
     /// <summary>

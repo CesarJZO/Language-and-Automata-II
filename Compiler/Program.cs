@@ -1,20 +1,24 @@
 ﻿using Language;
 using IntermediateCode;
 
-var filePath = string.Empty;
+var tokensFilePath = string.Empty;
+var symbolsFilePath = string.Empty;
 try
 {
-    filePath = args[0];
+    tokensFilePath = args[0];
+    symbolsFilePath = args[1];
 }
 catch (IndexOutOfRangeException)
 {
-    PrintError("No file provided.");
+    PrintError($"Usage: {System.Diagnostics.Process.GetCurrentProcess().ProcessName} <icv_file> <symbols_file>");
 }
 
 Token[] tokens = Array.Empty<Token>();
+Symbol[] symbols = Array.Empty<Symbol>();
 try
 {
-    tokens = FileParser.GetTokensFromFile(filePath);
+    tokens = FileParser.GetTokensFromFile(tokensFilePath);
+    symbols = FileParser.GetSymbolsFromFile(symbolsFilePath);
 }
 catch (FileNotFoundException e)
 {
@@ -35,12 +39,28 @@ VCI: {vector.Count()}
 """
 );
 
+IcvExecutable executable = new(
+    vector: vector,
+    symbols: symbols,
+    readFunction: Console.ReadLine,
+    writeFunction: Console.WriteLine
+);
+
+Symbol[] updatedSymbols = executable.ExecuteIcv();
+
+Console.WriteLine($"""
+Symbol table:
+{"\t"}{string.Join("\n\t", (IEnumerable<Symbol>)updatedSymbols)}
+"""
+);
+
 const string outputDir = "output_files";
 
 if (!Directory.Exists(outputDir))
     Directory.CreateDirectory(outputDir);
 
 FileParser.WriteTokensAsArray($"{outputDir}/vci.csv", vector.ToArray());
+FileParser.WriteSymbolTable($"{outputDir}/symbols.csv", updatedSymbols);
 
 void PrintError(string message)
 {
