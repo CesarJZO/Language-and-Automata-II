@@ -6,10 +6,10 @@ namespace IntermediateCode;
 
 public class IntermediateCodeVector : IEnumerable<Token>
 {
+    private readonly Stack<int> _addresses;
     private readonly List<Token> _intermediateCodeVector;
 
     private readonly Stack<Operator> _operators;
-    private readonly Stack<int> _addresses;
     private readonly Stack<Token> _statements;
 
     public IntermediateCodeVector()
@@ -20,12 +20,23 @@ public class IntermediateCodeVector : IEnumerable<Token>
         _statements = new Stack<Token>();
     }
 
+    public Token this[int i] => _intermediateCodeVector[i];
+
+    public IEnumerator<Token> GetEnumerator()
+    {
+        return _intermediateCodeVector.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+
     public void Generate(Token[] tokens)
     {
         Token temp = null!;
         Token currentStatement = null!;
         foreach (Token token in tokens)
-        {
             if (Lang.IsIdentifier(token) || Lang.IsLiteral(token) || Lang.IsFunction(token))
             {
                 AddToIcv(token);
@@ -33,8 +44,8 @@ public class IntermediateCodeVector : IEnumerable<Token>
             else if (Lang.IsOperator(token))
             {
                 AddOperator(new Operator(
-                    token: token,
-                    priority: Lang.GetPriority(token)
+                    token,
+                    Lang.GetPriority(token)
                 ));
             }
             else if (token.Id is Lang.OpenParenthesis)
@@ -50,8 +61,8 @@ public class IntermediateCodeVector : IEnumerable<Token>
                 EmptyOperatorsStack();
 
                 if (temp?.Id is not Lang.UntilKeyword) continue;
-                // Until condition evaluated
 
+                // Until condition evaluated
                 var address = _addresses.Pop().ToString();
                 AddToIcv(new Token(address, 0, 0, 0));
                 AddToIcv(temp);
@@ -71,11 +82,10 @@ public class IntermediateCodeVector : IEnumerable<Token>
                 if (currentStatement.Id is Lang.RepeatKeyword)
                     temp = token;
             }
-        }
     }
 
     /// <summary>
-    /// Removes all operators from the stack until the first open parenthesis is found.
+    ///     Removes all operators from the stack until the first open parenthesis is found.
     /// </summary>
     private void RemovePairExpression()
     {
@@ -85,7 +95,7 @@ public class IntermediateCodeVector : IEnumerable<Token>
     }
 
     /// <summary>
-    /// Removes all operators from the stack and adds them to the intermediate code vector.
+    ///     Removes all operators from the stack and adds them to the intermediate code vector.
     /// </summary>
     private void EmptyOperatorsStack()
     {
@@ -94,17 +104,21 @@ public class IntermediateCodeVector : IEnumerable<Token>
     }
 
     /// <summary>
-    /// Adds an operator to the stack based on its priority. If the operator has a higher priority
-    /// than the top of the stack, it is added to the stack. Otherwise, all operators with a higher
-    /// or equal priority are removed from the stack and added to the intermediate code vector.
+    ///     Adds an operator to the stack based on its priority. If the operator has a higher priority
+    ///     than the top of the stack, it is added to the stack. Otherwise, all operators with a higher
+    ///     or equal priority are removed from the stack and added to the intermediate code vector.
     /// </summary>
     /// <param name="op">Operator to add</param>
     private void AddOperator(Operator op)
     {
         if (_operators.Count == 0)
+        {
             _operators.Push(op);
+        }
         else if (_operators.Peek().Priority < op.Priority)
+        {
             _operators.Push(op);
+        }
         else
         {
             while (_operators.Count > 0 && _operators.Peek().Priority >= op.Priority)
@@ -114,14 +128,13 @@ public class IntermediateCodeVector : IEnumerable<Token>
     }
 
     /// <summary>
-    /// Adds a token to the intermediate code vector.
+    ///     Adds a token to the intermediate code vector.
     /// </summary>
     /// <param name="token">Token to add</param>
-    private void AddToIcv(Token token) => _intermediateCodeVector.Add(token);
-
-    public IEnumerator<Token> GetEnumerator() => _intermediateCodeVector.GetEnumerator();
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    private void AddToIcv(Token token)
+    {
+        _intermediateCodeVector.Add(token);
+    }
 
     public override string ToString()
     {

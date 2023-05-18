@@ -1,10 +1,10 @@
 ﻿namespace Semantics;
 
-public readonly struct Symbol
+public class Symbol
 {
     public string Id { get; }
     public int Token { get; }
-    public string Value { get; }
+    public string Value { get; set; }
 
     public Symbol(string id, int token, string value)
     {
