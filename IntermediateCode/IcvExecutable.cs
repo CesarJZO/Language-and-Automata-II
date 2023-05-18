@@ -52,19 +52,16 @@ public class IcvExecutable
             else if (Lang.IsOperator(token))
             {
                 (Token leftOperand, Token rightOperand) = PopOperands();
-                var op = token as Operator;
-
-                object result = Evaluate(leftOperand, rightOperand, op!);
-
+                object result = Evaluate(leftOperand, rightOperand, token);
                 _executionStack.Push(new Token(result.ToString()!, 0, 0, 0));
             }
             else if (token.Id is Lang.ReadFunction)
             {
-                AssignToNext(i);
+                AssignToNext(i++);
             }
             else if (token.Id is Lang.WriteFunction)
             {
-                WriteNext(i);
+                WriteNext(i++);
             }
         }
 
