@@ -77,7 +77,7 @@ public class IcvExecutable
         Token nextToken = _vector[index + 1];
 
         Symbol symbol = _symbols[nextToken.TablePosition];
-        symbol.Value = _readFunction() ?? string.Empty;
+        symbol.Value = _readFunction() ?? Lang.DefaultValueOf(nextToken);
     }
 
     /// <summary>

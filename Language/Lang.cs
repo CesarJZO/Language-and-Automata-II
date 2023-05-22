@@ -60,7 +60,7 @@ public static class Lang
 
     public static bool IsIdentifier(int id) => id is IntIdentifier or RealIdentifier or StringIdentifier or LogicIdentifier or GeneralIdentifier;
 
-    public static bool IsOperator(int id) => id is 
+    public static bool IsOperator(int id) => id is
         MulOperator or DivOperator or ModOperator or SumOperator
         or SubOperator or LowerThanOperator or LowerOrEqualOperator or GreaterThanOperator or GreaterOrEqualOperator
         or EqualToOperator or NotEqualsOperator or AndOperator or OrOperator or NotOperator or AssignmentOperator;
@@ -88,6 +88,23 @@ public static class Lang
         CloseParenthesis => Priority.Assign,
         _ => throw new Exception("Invalid operator")
     };
+
+    /// <summary>
+    /// Gets the default value for a token
+    /// </summary>
+    /// <param name="token">The identifier token</param>
+    /// <returns>Depending on the type of the token, returns a default value</returns>
+    public static string DefaultValueOf(Token token)
+    {
+        switch (token.Id)
+        {
+            case Lang.IntIdentifier: return "0";
+            case Lang.RealIdentifier: return "0.0";
+            case Lang.StringIdentifier: return "null";
+            case Lang.LogicIdentifier: return "false";
+            default: throw new Exception("Invalid identifier");
+        }
+    }
 
     private static class Priority
     {

@@ -61,11 +61,19 @@ public class Analyzer
     {
         foreach (Token token in identifiers)
         {
-            var symbol = new Symbol(
-                id: token.Lexeme,
-                token: token.Id,
-                value: GetDefaultValueForToken(token)
-            );
+            Symbol symbol;
+            try
+            {
+                symbol = new Symbol(
+                    id: token.Lexeme,
+                    token: token.Id,
+                    value: Lang.DefaultValueOf(token)
+                );
+            }
+            catch (Exception)
+            {
+                throw new SemanticException($"[{token.Lexeme}] is not a valid type: line {token.Line}.");
+            }
             UpdateTokenInTable(token, Symbols.Count);
             token.TablePosition = Symbols.Count;
             Symbols.Add(symbol);
@@ -138,23 +146,6 @@ public class Analyzer
                     or Lang.IntLiteral or Lang.IntIdentifier),
             _ => false
         };
-    }
-
-    /// <summary>
-    /// Gets the default value for a token
-    /// </summary>
-    /// <param name="token">The identifier token</param>
-    /// <returns>Depending on the type of the token, returns a default value</returns>
-    private string GetDefaultValueForToken(Token token)
-    {
-        switch (token.Id)
-        {
-            case Lang.IntIdentifier: return "0";
-            case Lang.RealIdentifier: return "0.0";
-            case Lang.StringIdentifier: return "null";
-            case Lang.LogicIdentifier: return "false";
-            default: throw new SemanticException($"[{token.Lexeme}] is not a valid type: line {token.Line}.");
-        }
     }
 
     public override string ToString() => $"""
