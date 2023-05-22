@@ -7,7 +7,7 @@ public class IcvExecutable
 {
     private static readonly DataTable DataTable = new();
 
-    private readonly IntermediateCodeVector _vector;
+    private readonly Token[] _vector;
     private readonly Stack<Token> _executionStack;
 
     private readonly Symbol[] _symbols;
@@ -22,7 +22,7 @@ public class IcvExecutable
     /// <param name="symbols">Symbols table from semantic analysis.</param>
     /// <param name="readFunction">Predicate to be used as read function.</param>
     /// <param name="writeFunction">Action to be used as write function.</param>
-    public IcvExecutable(IntermediateCodeVector vector, Symbol[] symbols, Func<string?> readFunction, Action<string> writeFunction)
+    public IcvExecutable(Token[] vector, Symbol[] symbols, Func<string?> readFunction, Action<string> writeFunction)
     {
         _vector = vector;
         _symbols = symbols;
@@ -37,7 +37,7 @@ public class IcvExecutable
     /// <returns>The symbols table with the updated values.</returns>
     public Symbol[] ExecuteIcv()
     {
-        for (var i = 0; i < _vector.Count(); i++)
+        for (var i = 0; i < _vector.Length; i++)
         {
             Token token = _vector[i];
             if (Lang.IsIdentifier(token) || Lang.IsLiteral(token))

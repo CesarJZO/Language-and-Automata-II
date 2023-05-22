@@ -40,7 +40,7 @@ VCI: {vector.Count()}
 );
 
 IcvExecutable executable = new(
-    vector: vector,
+    vector: vector.ToArray(),
     symbols: symbols,
     readFunction: Console.ReadLine,
     writeFunction: Console.WriteLine
@@ -59,7 +59,7 @@ const string outputDir = "output_files";
 if (!Directory.Exists(outputDir))
     Directory.CreateDirectory(outputDir);
 
-FileParser.WriteTokensAsArray($"{outputDir}/vci.csv", vector.ToArray());
+FileParser.WriteTokenTable($"{outputDir}/vci.csv", vector.ToArray());
 FileParser.WriteSymbolTable($"{outputDir}/symbols.csv", updatedSymbols);
 
 void PrintError(string message)
