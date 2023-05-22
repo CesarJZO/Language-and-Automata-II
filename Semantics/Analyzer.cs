@@ -61,22 +61,22 @@ public class Analyzer
     {
         foreach (Token token in identifiers)
         {
-            Symbol symbol;
             try
             {
-                symbol = new Symbol(
+                var symbol = new Symbol(
                     id: token.Lexeme,
                     token: token.Id,
                     value: Lang.DefaultValueOf(token)
                 );
+                UpdateTokenInTable(token, Symbols.Count);
+                token.TablePosition = Symbols.Count;
+                Symbols.Add(symbol);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw new SemanticException($"[{token.Lexeme}] is not a valid type: line {token.Line}.");
+                if (e.Message.Contains("-1"))
+                    throw new SemanticException($"[{token.Lexeme}] is not a valid type: line {token.Line}.");
             }
-            UpdateTokenInTable(token, Symbols.Count);
-            token.TablePosition = Symbols.Count;
-            Symbols.Add(symbol);
         }
     }
 

@@ -94,18 +94,18 @@ public static class Lang
     /// <summary>
     /// Gets the default value for a token
     /// </summary>
-    /// <param name="token">The identifier token</param>
+    /// <param name="identifier">The identifier token</param>
     /// <returns>Depending on the type of the token, returns a default value</returns>
-    public static string DefaultValueOf(Token token)
+    public static string DefaultValueOf(Token identifier)
     {
-        switch (token.Id)
+        return identifier.Id switch
         {
-            case Lang.IntIdentifier: return "0";
-            case Lang.RealIdentifier: return "0.0";
-            case Lang.StringIdentifier: return "null";
-            case Lang.LogicIdentifier: return "false";
-            default: throw new Exception("Invalid identifier");
-        }
+            IntIdentifier => "0",
+            RealIdentifier => "0.0",
+            StringIdentifier => "null",
+            LogicIdentifier => "false",
+            _ => throw new Exception("-1")
+        };
     }
 
     private static class Priority
