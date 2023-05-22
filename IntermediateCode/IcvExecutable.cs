@@ -46,8 +46,10 @@ public class IcvExecutable
             }
             else if (token.Id is Lang.UntilKeyword)
             {
-                i = Convert.ToInt32(_executionStack.Pop()); // New pointer
-
+                var untilIndex = Convert.ToInt32(_executionStack.Pop().Lexeme);
+                var untilCondition = Convert.ToBoolean(_executionStack.Pop().Lexeme);
+                if (untilCondition)
+                    i = untilIndex - 1;
             }
             else if (Lang.IsIdentifier(token) || Lang.IsLiteral(token))
             {
