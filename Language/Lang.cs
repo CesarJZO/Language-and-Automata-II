@@ -56,6 +56,8 @@ public static class Lang
     public const int RepeatKeyword = -9;
     public const int UntilKeyword = -10;
 
+    public const int Address = -99;
+
     public static bool IsLiteral(int id) => id is IntLiteral or RealLiteral or StringLiteral or TrueLiteral or FalseLiteral;
 
     public static bool IsIdentifier(int id) => id is IntIdentifier or RealIdentifier or StringIdentifier or LogicIdentifier or GeneralIdentifier;

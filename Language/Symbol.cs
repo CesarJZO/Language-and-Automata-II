@@ -13,5 +13,5 @@ public class Symbol
         Value = value;
     }
 
-    public override string ToString() => $"Id: {Id,6}, Token: {Token,3}, Value: {Value,5}";
+    public override string ToString() => $"{Id} {Token} {Value}";
 }

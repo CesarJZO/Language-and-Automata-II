@@ -40,7 +40,16 @@ public class IcvExecutable
         for (var i = 0; i < _vector.Length; i++)
         {
             Token token = _vector[i];
-            if (Lang.IsIdentifier(token) || Lang.IsLiteral(token))
+            if (token.Id is Lang.Address)
+            {
+                _executionStack.Push(token);
+            }
+            else if (token.Id is Lang.UntilKeyword)
+            {
+                i = Convert.ToInt32(_executionStack.Pop()); // New pointer
+
+            }
+            else if (Lang.IsIdentifier(token) || Lang.IsLiteral(token))
             {
                 _executionStack.Push(token);
             }

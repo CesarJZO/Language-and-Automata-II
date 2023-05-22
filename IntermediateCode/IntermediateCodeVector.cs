@@ -64,7 +64,7 @@ public class IntermediateCodeVector : IEnumerable<Token>
 
                 // Until condition evaluated
                 var address = _addresses.Pop().ToString();
-                AddToIcv(new Token(address, 0, 0, 0));
+                AddToIcv(new Token(address, Lang.Address, -1, -1));
                 AddToIcv(temp);
                 temp = null!;
             }
