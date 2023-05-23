@@ -119,15 +119,15 @@ public class IcvExecutable
     /// <summary>
     /// Assigns the right operand's value to the left operand's identifier.
     /// </summary>
-    /// <param name="leftOperand">Should be an Identifier token.</param>
-    /// <param name="rightOperand">Identifier or Literal token.</param>
-    private void AssignRightToLeft(Token leftOperand, Token rightOperand)
+    /// <param name="identifier">Must be an Identifier token.</param>
+    /// <param name="newToken">Identifier or Literal token.</param>
+    private void AssignRightToLeft(Token identifier, Token newToken)
     {
-        string rightValue = Lang.IsIdentifier(rightOperand)
-            ? _symbols[rightOperand.TablePosition].Value
-            : rightOperand.Lexeme;
+        string rightValue = Lang.IsIdentifier(newToken)
+            ? _symbols[newToken.TablePosition].Value
+            : newToken.Lexeme;
 
-        Symbol symbolOfLeftOperand = _symbols[leftOperand.TablePosition];
+        Symbol symbolOfLeftOperand = _symbols[identifier.TablePosition];
         symbolOfLeftOperand.Value = rightValue;
     }
 
