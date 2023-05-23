@@ -1,11 +1,11 @@
 ﻿using Language;
 using IntermediateCode;
 
-var tokensFilePath = string.Empty;
+var icvFilePath = string.Empty;
 var symbolsFilePath = string.Empty;
 try
 {
-    tokensFilePath = args[0];
+    icvFilePath = args[0];
     symbolsFilePath = args[1];
 }
 catch (IndexOutOfRangeException)
@@ -17,7 +17,7 @@ Token[] tokens = Array.Empty<Token>();
 Symbol[] symbols = Array.Empty<Symbol>();
 try
 {
-    tokens = FileParser.GetTokensFromFile(tokensFilePath);
+    tokens = FileParser.GetTokensFromFile(icvFilePath);
     symbols = FileParser.GetSymbolsFromFile(symbolsFilePath);
 }
 catch (FileNotFoundException e)
@@ -29,27 +29,26 @@ catch (Exception e)
     PrintError(e.Message);
 }
 
-var vector = new IntermediateCodeVector();
-Token[] bodyTokens = Filter.GetBodyTokens(tokens);
-vector.Generate(bodyTokens);
-
-Console.WriteLine($"""
-VCI: {vector.Count()}
-{vector}
-"""
-);
-
 IcvExecutable executable = new(
-    vector: vector.ToArray(),
+    vector: tokens,
     symbols: symbols,
-    readFunction: Console.ReadLine,
-    writeFunction: Console.WriteLine
-);
+    readFunction: s =>
+    {
+        Console.Write($"Read {s}: ");
+        return Console.ReadLine();
+    },
+    writeFunction: (value, identifier) =>
+    {
+        Console.WriteLine(identifier is not null
+            ? $"Write {identifier}: {value}"
+            : $"Write: {value}"
+        );
+    });
 
 Symbol[] updatedSymbols = executable.ExecuteIcv();
 
 Console.WriteLine($"""
-Symbol table:
+{"\n"}Symbol table:
 {"\t"}{string.Join("\n\t", (IEnumerable<Symbol>)updatedSymbols)}
 """
 );
@@ -59,7 +58,7 @@ const string outputDir = "output_files";
 if (!Directory.Exists(outputDir))
     Directory.CreateDirectory(outputDir);
 
-FileParser.WriteTokenTable($"{outputDir}/vci.csv", vector.ToArray());
+FileParser.WriteTokenTable($"{outputDir}/vci.csv", tokens);
 FileParser.WriteSymbolTable($"{outputDir}/symbols.csv", updatedSymbols);
 
 void PrintError(string message)

@@ -5,15 +5,28 @@ namespace IntermediateCode;
 
 public class IcvExecutable
 {
+    /// <summary>
+    /// Predicate to be used as read function.
+    /// </summary>
+    /// <param name="identifier">Identifier in which the value will be stored.</param>
+    public delegate string? Read(string identifier);
+
+    /// <summary>
+    /// Action to be used as write function.
+    /// </summary>
+    /// <param name="value">Value to be written.</param>
+    /// <param name="identifier">Identifier of the value to be written if any.</param>
+    public delegate void Write(string value, string? identifier);
+
     private static readonly DataTable DataTable = new();
 
     private readonly Token[] _vector;
-    private readonly Stack<Token> _executionStack;
-
     private readonly Symbol[] _symbols;
 
-    private readonly Func<string?> _readFunction;
-    private readonly Action<string> _writeFunction;
+    private readonly Stack<Token> _executionStack;
+
+    private readonly Read _readFunction;
+    private readonly Write _writeFunction;
 
     /// <summary>
     /// Creates a new instance of <see cref="IcvExecutable"/>.
@@ -22,7 +35,7 @@ public class IcvExecutable
     /// <param name="symbols">Symbols table from semantic analysis.</param>
     /// <param name="readFunction">Predicate to be used as read function.</param>
     /// <param name="writeFunction">Action to be used as write function.</param>
-    public IcvExecutable(Token[] vector, Symbol[] symbols, Func<string?> readFunction, Action<string> writeFunction)
+    public IcvExecutable(Token[] vector, Symbol[] symbols, Read readFunction, Write writeFunction)
     {
         _vector = vector;
         _symbols = symbols;
@@ -88,7 +101,7 @@ public class IcvExecutable
         Token nextToken = _vector[index + 1];
 
         Symbol symbol = _symbols[nextToken.TablePosition];
-        symbol.Value = _readFunction() ?? Lang.DefaultValueOf(nextToken);
+        symbol.Value = _readFunction(nextToken.Lexeme) ?? Lang.DefaultValueOf(nextToken);
     }
 
     /// <summary>
@@ -98,9 +111,9 @@ public class IcvExecutable
     private void WriteNext(int index)
     {
         Token nextToken = _vector[index + 1];
-
-        Symbol symbol = _symbols[nextToken.TablePosition];
-        _writeFunction(symbol.Value);
+        bool isIdentifier = Lang.IsIdentifier(nextToken.Id);
+        string value = isIdentifier ? _symbols[nextToken.TablePosition].Value : nextToken.Lexeme;
+        _writeFunction(value, isIdentifier ? nextToken.Lexeme : null);
     }
 
     /// <summary>
