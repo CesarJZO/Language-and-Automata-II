@@ -159,7 +159,7 @@ public class IcvExecutable
             ? _symbols[rightOperand.TablePosition].Value
             : rightOperand.Lexeme;
 
-        var operation = $"{leftValue}{op.Lexeme}{rightValue}";
+        var operation = $"{leftValue} {op.Lexeme} {rightValue}";
 
         return DataTable.Compute(operation, string.Empty);
     }
